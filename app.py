@@ -63,6 +63,7 @@ descarga_thread.start()
 
 # Inicializa la aplicación Dash
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
+server = app.server  # Definir el servidor para Heroku
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),

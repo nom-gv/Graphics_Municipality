@@ -1,4 +1,5 @@
-
+import os
+import threading
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -18,45 +19,58 @@ import base64
 import io
 
 
-file_id = '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosCancer.xlsx', quiet=False)
+# Función para descargar y guardar un archivo desde Google Drive
+def download_and_save(nombre, file_id):
+    try:
+        # Descargar el archivo desde Google Drive
+        output_file = nombre
+        url = f'https://drive.google.com/uc?export=download&id={file_id}'
+        gdown.download(url, output_file, quiet=False)
 
-file_id = '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosDiabetes.xlsx', quiet=False)
+        # Leer el archivo descargado
+        df = pd.read_excel(output_file)
 
-file_id = '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosHipertensionArterial.xlsx', quiet=False)
+        return df
 
-file_id = '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosObesidad.xlsx', quiet=False)
+    except Exception as e:
+        print(f'Error al descargar y guardar el archivo {nombre}: {str(e)}')
+        return None
 
-file_id = '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosNeumonia.xlsx', quiet=False)
+# Inicializar la aplicación Dash
+app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
-file_id = '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosChagas.xlsx', quiet=False)
+# Configurar el layout (ejemplo básico)
+app.layout = html.Div("Hola Mundo en Dash")
 
-file_id = '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosVIH.xlsx', quiet=False)
+# Obtener el puerto desde la variable de entorno PORT, o usar 8050 por defecto
+port = int(os.environ.get('PORT', 8050))
 
-file_id = '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosEstadoNutricional.xlsx', quiet=False)
+if __name__ == '__main__':
+    # Lista de archivos a descargar y procesar al inicio
+    archivos = [
+        ('CasosCancer.xlsx', '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'),
+        ('CasosDiabetes.xlsx', '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'),
+        ('CasosHipertensionArterial.xlsx', '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'),
+        ('CasosObesidad.xlsx', '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'),
+        ('CasosNeumonia.xlsx', '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'),
+        ('CasosChagas.xlsx', '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'),
+        ('CasosVIH.xlsx', '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'),
+        ('CasosEstadoNutricional.xlsx', '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'),
+        ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
+        ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q')
+    ]
 
-file_id = '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosEmbarazoAdolescente.xlsx', quiet=False)
+    # Función para descargar en segundo plano
+    def descargar_archivos():
+        for nombre, file_id in archivos:
+            download_and_save(nombre, file_id)
 
-file_id = '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosConsultaExterna.xlsx', quiet=False)
+    # Crear un thread para las descargas y ejecutarlo
+    descarga_thread = threading.Thread(target=descargar_archivos)
+    descarga_thread.start()
+
+    # Ejecutar el servidor Dash
+    app.run_server(host='0.0.0.0', port=port)
 
 
 # Inicializa la aplicación Dash

@@ -18,50 +18,55 @@ import base64
 import io
 
 
-file_id = '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosCancer.xlsx', quiet=False)
+def download_and_save(nombre, file_id):
+    try:
+        # Descargar el archivo desde Google Drive
+        output_file = nombre
+        gdown.download('https://drive.google.com/uc?export=download&id={file_id}', output_file, quiet=False)
 
-file_id = '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosDiabetes.xlsx', quiet=False)
+        # Leer el archivo descargado
+        df = pd.read_excel(output_file)
 
-file_id = '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosHipertensionArterial.xlsx', quiet=False)
+    except Exception as e:
+        print(f'Error al descargar y guardar el archivo: {str(e)}')
 
-file_id = '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosObesidad.xlsx', quiet=False)
+# Ruta para iniciar la descarga en segundo plano
 
-file_id = '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosNeumonia.xlsx', quiet=False)
-
-file_id = '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosChagas.xlsx', quiet=False)
-
-file_id = '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosVIH.xlsx', quiet=False)
-
-file_id = '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosEstadoNutricional.xlsx', quiet=False)
-
-file_id = '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosEmbarazoAdolescente.xlsx', quiet=False)
-
-file_id = '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'
-download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
-gdown.download(download_url, 'CasosConsultaExterna.xlsx', quiet=False)
 
 # Inicializa la aplicación Dash
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
 if __name__ == '__main__':
+    file_id = '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'
+    download_and_save('CasosCancer.xlsx', file_id)
+
+    file_id = '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'
+    download_and_save('CasosDiabetes.xlsx', file_id)
+
+    file_id = '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'
+    download_and_save('CasosHipertensionArterial.xlsx', file_id)
+
+    file_id = '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'
+    download_and_save('CasosObesidad.xlsx', file_id)
+
+    file_id = '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'
+    download_and_save('CasosNeumonia.xlsx', file_id)
+
+    file_id = '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'
+    download_and_save('CasosChagas.xlsx', file_id)
+
+    file_id = '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'
+    download_and_save('CasosVIH.xlsx', file_id)
+
+    file_id = '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'
+    download_and_save('CasosEstadoNutricional.xlsx', file_id)
+
+    file_id = '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'
+    download_and_save('CasosEmbarazoAdolescente.xlsx', file_id)
+
+    file_id = '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'
+    download_and_save('CasosConsultaExterna.xlsx', file_id)
+
     app.run_server(debug=True, port=int(os.environ.get('PORT', 8050)))
 
 

@@ -18,61 +18,52 @@ import base64
 import io
 
 
+# Función para descargar y guardar un archivo desde Google Drive
 def download_and_save(nombre, file_id):
     try:
         # Descargar el archivo desde Google Drive
         output_file = nombre
-        gdown.download('https://drive.google.com/uc?export=download&id={file_id}', output_file, quiet=False)
+        url = f'https://drive.google.com/uc?export=download&id={file_id}'
+        gdown.download(url, output_file, quiet=False)
 
         # Leer el archivo descargado
         df = pd.read_excel(output_file)
 
+        return df
+
     except Exception as e:
-        print(f'Error al descargar y guardar el archivo: {str(e)}')
+        print(f'Error al descargar y guardar el archivo {nombre}: {str(e)}')
+        return None
 
-# Ruta para iniciar la descarga en segundo plano
-
-
-# Inicializa la aplicación Dash
+# Inicializar la aplicación Dash
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
-# Configurar el layout
+# Configurar el layout (ejemplo básico)
 app.layout = html.Div("Hola Mundo en Dash")
 
-# Definir el puerto
+# Obtener el puerto desde la variable de entorno PORT, o usar 8050 por defecto
 port = int(os.environ.get('PORT', 8050))
 
 if __name__ == '__main__':
-    file_id = '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'
-    download_and_save('CasosCancer.xlsx', file_id)
+    # Lista de archivos a descargar y procesar al inicio
+    archivos = [
+        ('CasosCancer.xlsx', '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'),
+        ('CasosDiabetes.xlsx', '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'),
+        ('CasosHipertensionArterial.xlsx', '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'),
+        ('CasosObesidad.xlsx', '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'),
+        ('CasosNeumonia.xlsx', '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'),
+        ('CasosChagas.xlsx', '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'),
+        ('CasosVIH.xlsx', '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'),
+        ('CasosEstadoNutricional.xlsx', '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'),
+        ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
+        ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q')
+    ]
 
-    file_id = '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'
-    download_and_save('CasosDiabetes.xlsx', file_id)
+    # Descargar y procesar cada archivo
+    for nombre, file_id in archivos:
+        download_and_save(nombre, file_id)
 
-    file_id = '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'
-    download_and_save('CasosHipertensionArterial.xlsx', file_id)
-
-    file_id = '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'
-    download_and_save('CasosObesidad.xlsx', file_id)
-
-    file_id = '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'
-    download_and_save('CasosNeumonia.xlsx', file_id)
-
-    file_id = '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'
-    download_and_save('CasosChagas.xlsx', file_id)
-
-    file_id = '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'
-    download_and_save('CasosVIH.xlsx', file_id)
-
-    file_id = '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'
-    download_and_save('CasosEstadoNutricional.xlsx', file_id)
-
-    file_id = '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'
-    download_and_save('CasosEmbarazoAdolescente.xlsx', file_id)
-
-    file_id = '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'
-    download_and_save('CasosConsultaExterna.xlsx', file_id)
-
+    # Ejecutar el servidor Dash
     app.run_server(host='0.0.0.0', port=port)
 
 

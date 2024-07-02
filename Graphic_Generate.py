@@ -61,6 +61,10 @@ gdown.download(download_url, 'CasosConsultaExterna.xlsx', quiet=False)
 # Inicializa la aplicación Dash
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
+if __name__ == '__main__':
+    app.run_server(debug=True, port=int(os.environ.get('PORT', 8050)))
+
+
 # Función para calcular incidencias
 def calculate_gender(df, factor, m, h):
     # Población estimada

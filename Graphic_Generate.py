@@ -1,4 +1,4 @@
-
+import os
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -36,6 +36,12 @@ def download_and_save(nombre, file_id):
 # Inicializa la aplicación Dash
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
+# Configurar el layout
+app.layout = html.Div("Hola Mundo en Dash")
+
+# Definir el puerto
+port = int(os.environ.get('PORT', 8050))
+
 if __name__ == '__main__':
     file_id = '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'
     download_and_save('CasosCancer.xlsx', file_id)
@@ -67,7 +73,7 @@ if __name__ == '__main__':
     file_id = '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'
     download_and_save('CasosConsultaExterna.xlsx', file_id)
 
-    app.run_server(debug=True, port=int(os.environ.get('PORT', 8050)))
+    app.run_server(host='0.0.0.0', port=port)
 
 
 # Función para calcular incidencias

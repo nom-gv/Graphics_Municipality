@@ -1,3 +1,4 @@
+import threading
 import os
 import pandas as pd
 import numpy as np
@@ -59,9 +60,17 @@ if __name__ == '__main__':
         ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q')
     ]
 
-    # Descargar y procesar cada archivo
+    # Función para descargar y guardar en segundo plano
+    def download_and_save_async(nombre, file_id):
+        def download_task():
+            download_and_save(nombre, file_id)
+
+        thread = threading.Thread(target=download_task)
+        thread.start()
+
+    # Llamar a la función para descargar en segundo plano
     for nombre, file_id in archivos:
-        download_and_save(nombre, file_id)
+        download_and_save_async(nombre, file_id)
 
     # Ejecutar el servidor Dash
     app.run_server(host='0.0.0.0', port=port)

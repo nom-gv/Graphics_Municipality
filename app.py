@@ -72,8 +72,6 @@ def get_casos_diabetes():
     df_sc_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-SC")
     return df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes
 
-# Otras funciones de obtención de datos para los demás archivos...
-
 # Función para mostrar los DataFrames en HTML
 def generate_table(dataframe, max_rows=10):
     return html.Table(
@@ -123,6 +121,9 @@ def display_page(pathname):
     else:
         return html.Div('Selecciona una opción del menú')
 
+# Obtener el puerto desde la variable de entorno o usar 8050 por defecto
+port = int(os.environ.get('PORT', 8050))
+
 # Iniciar la aplicación Dash
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=port)

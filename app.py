@@ -20,6 +20,7 @@ import io
 
 
 # Función para descargar y guardar un archivo desde Google Drive
+# Función para descargar y guardar un archivo desde Google Drive
 def download_and_save(nombre, file_id):
     try:
         # Descargar el archivo desde Google Drive
@@ -36,45 +37,127 @@ def download_and_save(nombre, file_id):
         print(f'Error al descargar y guardar el archivo {nombre}: {str(e)}')
         return None
 
-# Inicializar la aplicación Dash
-app = dash.Dash(__name__, suppress_callback_exceptions=True)
+# Descargar archivos de Google Drive y guardarlos localmente
+archivos = [
+    ('CasosCancer.xlsx', '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'),
+    ('CasosDiabetes.xlsx', '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'),
+    ('CasosHipertensionArterial.xlsx', '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'),
+    ('CasosObesidad.xlsx', '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'),
+    ('CasosNeumonia.xlsx', '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'),
+    ('CasosChagas.xlsx', '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'),
+    ('CasosVIH.xlsx', '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'),
+    ('CasosEstadoNutricional.xlsx', '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'),
+    ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
+    ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q')
+]
 
-# Configurar el layout (ejemplo básico)
-app.layout = html.Div("Hola Mundo en Dash")
+def descargar_archivos():
+    for nombre, file_id in archivos:
+        download_and_save(nombre, file_id)
 
-# Obtener el puerto desde la variable de entorno PORT, o usar 8050 por defecto
-port = int(os.environ.get('PORT', 8050))
-
-if __name__ == '__main__':
-    # Lista de archivos a descargar y procesar al inicio
-    archivos = [
-        ('CasosCancer.xlsx', '1oRB3DMP1NtnnwfQcaYHo9a3bUcbQfB5U'),
-        ('CasosDiabetes.xlsx', '1xHYonZp8RbPYCE9kihc3IthwOtgVNi1P'),
-        ('CasosHipertensionArterial.xlsx', '1_jue36lk4iJim6btVh_tSUkR0i_QGeIk'),
-        ('CasosObesidad.xlsx', '19aVPGne2nPm7_I0L9i_csyEBRw9geGea'),
-        ('CasosNeumonia.xlsx', '1tK7dDEo1b7gWn-KHl1qE_WL62ztrygHw'),
-        ('CasosChagas.xlsx', '1kAXyvg1cvLtl7w8a6D1AijMwFLJiialT'),
-        ('CasosVIH.xlsx', '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'),
-        ('CasosEstadoNutricional.xlsx', '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'),
-        ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
-        ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q')
-    ]
-
-    # Función para descargar en segundo plano
-    def descargar_archivos():
-        for nombre, file_id in archivos:
-            download_and_save(nombre, file_id)
-
-    # Crear un thread para las descargas y ejecutarlo
-    descarga_thread = threading.Thread(target=descargar_archivos)
-    descarga_thread.start()
-
-    # Ejecutar el servidor Dash
-    app.run_server(host='0.0.0.0', port=port)
+# Descargar archivos en un hilo separado
+import threading
+descarga_thread = threading.Thread(target=descargar_archivos)
+descarga_thread.start()
 
 
 # Inicializa la aplicación Dash
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
+
+app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
+])
+
+# Define las funciones para obtener los datos de los diferentes archivos
+#def get_data(file_name, sheet_names):
+#    dfs = {}
+#    df = pd.read_excel(file_name, sheet_name=sheet_names)
+#    for sheet in sheet_names:
+#        dfs[sheet] = df[sheet].to_dict('records')
+#    return dfs
+
+# Define las funciones para descargar y leer los datos
+def get_casos_cancer():
+    df_c_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-C")
+    df_g_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-G")
+    df_pc_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-PC")
+    df_sc_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-SC")
+    return df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer
+
+def get_casos_diabetes():
+    df_c_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-C")
+    df_g_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-G")
+    df_pc_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-PC")
+    df_sc_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-SC")
+    return df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes
+
+def get_casos_hipertension():
+    df_c_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-C")
+    df_g_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-G")
+    df_pc_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-PC")
+    df_sc_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-SC")
+    return df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension
+
+def get_casos_obesidad():
+    df_c_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-C")
+    df_g_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-G")
+    df_pc_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-PC")
+    df_sc_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-SC")
+    return df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad
+
+def get_casos_neumonia():
+    df_c_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-C")
+    df_g_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-G")
+    df_pc_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-PC")
+    df_sc_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-SC")
+    return df_c_neumonia, df_g_neumonia, df_pc_neumonia, df_sc_neumonia
+
+def get_casos_chagas():
+    df_c_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-C")
+    df_g_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-G")
+    df_pc_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-PC")
+    df_sc_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-SC")
+    return df_c_chagas, df_g_chagas, df_pc_chagas, df_sc_chagas
+
+def get_casos_vih():
+    df_c_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-C")
+    df_g_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-G")
+    df_pc_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-PC")
+    df_sc_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-SC")
+    return df_c_vih, df_g_vih, df_pc_vih, df_sc_vih
+
+def get_casos_nutricion():
+    df_c_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-C")
+    df_g_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-G")
+    df_pc_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-PC")
+    df_sc_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-SC")
+    
+    df_c_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-C")
+    df_g_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-G")
+    df_pc_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-PC")
+    df_sc_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-SC")
+    
+    df_c_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-C")
+    df_g_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-G")
+    df_pc_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-PC")
+    df_sc_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-SC")
+    return df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad, df_c_sobrepeso, df_g_sobrepeso, df_pc_sobrepeso, df_sc_sobrepeso, df_c_bajopeso, df_g_bajopeso, df_pc_bajopeso, df_sc_bajopeso
+
+def get_casos_embarazo():
+    df_c_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-C")
+    df_g_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-G")
+    df_pc_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-PC")
+    df_sc_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-SC")
+    return df_c_embarazo, df_g_embarazo, df_pc_embarazo, df_sc_embarazo
+
+def get_casos_consulta():
+    df_c_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-C")
+    df_g_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-G")
+    df_pc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-PC")
+    df_sc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-SC")
+    return df_c_consulta, df_g_consulta, df_pc_consulta, df_sc_consulta
+
 # Función para calcular incidencias
 def calculate_gender(df, factor, m, h):
     # Población estimada
@@ -602,87 +685,6 @@ def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer
         html.H2(title),
         html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
     ])
-
-# Define las funciones para descargar y leer los datos
-def get_casos_cancer():
-    df_c_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-C")
-    df_g_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-G")
-    df_pc_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-PC")
-    df_sc_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-SC")
-    return df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer
-
-def get_casos_diabetes():
-    df_c_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-C")
-    df_g_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-G")
-    df_pc_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-PC")
-    df_sc_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-SC")
-    return df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes
-
-def get_casos_hipertension():
-    df_c_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-C")
-    df_g_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-G")
-    df_pc_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-PC")
-    df_sc_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-SC")
-    return df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension
-
-def get_casos_obesidad():
-    df_c_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-C")
-    df_g_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-G")
-    df_pc_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-PC")
-    df_sc_obesidad = pd.read_excel('CasosObesidad.xlsx', sheet_name="OBESIDAD-SC")
-    return df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad
-
-def get_casos_neumonia():
-    df_c_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-C")
-    df_g_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-G")
-    df_pc_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-PC")
-    df_sc_neumonia = pd.read_excel('CasosNeumonia.xlsx', sheet_name="NEUMONIA-SC")
-    return df_c_neumonia, df_g_neumonia, df_pc_neumonia, df_sc_neumonia
-
-def get_casos_chagas():
-    df_c_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-C")
-    df_g_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-G")
-    df_pc_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-PC")
-    df_sc_chagas = pd.read_excel('CasosChagas.xlsx', sheet_name="CHAGAS-SC")
-    return df_c_chagas, df_g_chagas, df_pc_chagas, df_sc_chagas
-
-def get_casos_vih():
-    df_c_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-C")
-    df_g_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-G")
-    df_pc_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-PC")
-    df_sc_vih = pd.read_excel('CasosVIH.xlsx', sheet_name="VIH-SC")
-    return df_c_vih, df_g_vih, df_pc_vih, df_sc_vih
-
-def get_casos_nutricion():
-    df_c_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-C")
-    df_g_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-G")
-    df_pc_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-PC")
-    df_sc_obesidad = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="OBESIDAD-SC")
-    
-    df_c_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-C")
-    df_g_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-G")
-    df_pc_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-PC")
-    df_sc_sobrepeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="SOBREPESO-SC")
-    
-    df_c_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-C")
-    df_g_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-G")
-    df_pc_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-PC")
-    df_sc_bajopeso = pd.read_excel('CasosEstadoNutricional.xlsx', sheet_name="BAJOPESO-SC")
-    return df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad, df_c_sobrepeso, df_g_sobrepeso, df_pc_sobrepeso, df_sc_sobrepeso, df_c_bajopeso, df_g_bajopeso, df_pc_bajopeso, df_sc_bajopeso
-
-def get_casos_embarazo():
-    df_c_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-C")
-    df_g_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-G")
-    df_pc_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-PC")
-    df_sc_embarazo = pd.read_excel('CasosEmbarazoAdolescente.xlsx', sheet_name="EMBARAZO-SC")
-    return df_c_embarazo, df_g_embarazo, df_pc_embarazo, df_sc_embarazo
-
-def get_casos_consulta():
-    df_c_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-C")
-    df_g_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-G")
-    df_pc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-PC")
-    df_sc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-SC")
-    return df_c_consulta, df_g_consulta, df_pc_consulta, df_sc_consulta
 
 # Definir opciones de dataframes
 opciones_dataframes = [

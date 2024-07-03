@@ -65,6 +65,20 @@ def get_casos_cancer():
     df_sc_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-SC")
     return df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer
 
+def get_casos_diabetes():
+    df_c_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-C")
+    df_g_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-G")
+    df_pc_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-PC")
+    df_sc_diabetes = pd.read_excel('CasosDiabetes.xlsx', sheet_name="DIABETES-SC")
+    return df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes
+
+def get_casos_hipertension():
+    df_c_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-C")
+    df_g_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-G")
+    df_pc_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-PC")
+    df_sc_hipertension = pd.read_excel('CasosHipertensionArterial.xlsx', sheet_name="HIPERTENSION-SC")
+    return df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension
+
 # Función para mostrar los DataFrames en HTML
 def generate_table(dataframe, max_rows=10):
     return html.Table(
@@ -77,7 +91,6 @@ def generate_table(dataframe, max_rows=10):
         ]) for i in range(min(len(dataframe), max_rows))]
     )
 
-# Definir el layout de la aplicación
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div([
@@ -137,7 +150,7 @@ def display_page(pathname):
         ])
     else:
         return html.Div([
-            html.H1('Mi primera aplicación Dash en Heroku' + pathname),
+            html.H1('Mi primera aplicación Dash en Heroku'),
             dcc.Graph(
                 id='example-graph',
                 figure={
@@ -151,11 +164,7 @@ def display_page(pathname):
                 }
             )
         ])
-
-# Ejecutar la aplicación
-if __name__ == '__main__':
-    app.run_server(debug=True)
-
+    
 # Ejecutar la aplicación
 if __name__ == '__main__':
     app.run_server(debug=True)

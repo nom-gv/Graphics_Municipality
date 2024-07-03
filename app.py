@@ -236,11 +236,11 @@ def generate_lines_total(df1, df2, df3, x_column, y_column, title, size_title, f
     tmp_file.seek(0)
     plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
 
-     # Mostrar la gráfica en un componente HTML
+    # Mostrar la gráfica en un componente HTML
     return html.Div([
         html.H2(title),
-        html.Img(src='data:image/png;base64,{}'.format(plot_base64), className='responsive-graph')
-    ])
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+    ]) 
     
 
 # Función para generar la gráfica y mostrarla en base64
@@ -305,8 +305,8 @@ def generate_lines_gender(df1, df2, df3, x_column, y_column, title, size_title, 
     # Mostrar la gráfica en un componente HTML
     return html.Div([
         html.H2(title),
-        html.Img(src='data:image/png;base64,{}'.format(plot_base64))
-    ])
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+    ]) 
 
 def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
     años = sorted(df1[x_column].unique())

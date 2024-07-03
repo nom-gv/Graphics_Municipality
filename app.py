@@ -137,7 +137,7 @@ def display_page(pathname):
         ])
     else:
         return html.Div([
-            html.H1('Mi primera aplicación Dash en Heroku'),
+            html.H1('Mi primera aplicación Dash en Heroku' + pathname),
             dcc.Graph(
                 id='example-graph',
                 figure={

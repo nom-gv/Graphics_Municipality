@@ -175,23 +175,246 @@ app.layout = html.Div([
     html.Div(id='btn-calcular', style={'display': 'none'}),  # Div oculto para generar el botón
 ], className='container')
 
+# Definir opciones de dataframes
+opciones_dataframes = [
+    {'label': 'Camiri', 'value': 'Camiri'},
+    {'label': 'Gutierrez', 'value': 'Gutierrez'},
+    {'label': 'Cordillera', 'value': 'Cordillera'},
+    {'label': 'Santa Cruz', 'value': 'Santa Cruz'}
+]
+
+# Define el layout de la página de cálculo
+calculo_layout = html.Div([
+    html.Div([
+        html.Div([
+            html.H4('Población Camiri'),
+            html.Div([
+                html.P('Mujeres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-m1', type='number', value=21308, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-m2', type='number', value=21577, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-m3', type='number', value=21835, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-m4', type='number', value=22081, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-m5', type='number', value=22315, style={'width': '80px'}),
+            ]),
+            html.Div([
+                html.P('Hombres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-h1', type='number', value=19891, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-h2', type='number', value=20115, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-h3', type='number', value=20329, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-h4', type='number', value=20532, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-h5', type='number', value=20724, style={'width': '80px'}),
+            ]),
+        ], className='population-section'),
+        html.Div([
+            html.H4('Población Gutierrez'),
+            html.Div([
+                html.P('Mujeres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-m1-2', type='number', value=7692, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-m2-2', type='number', value=7786, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-m3-2', type='number', value=7876, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-m4-2', type='number', value=7962, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-m5-2', type='number', value=8044, style={'width': '80px'}),
+            ]),
+            html.Div([
+                html.P('Hombres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-h1-2', type='number', value=7719, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-h2-2', type='number', value=7803, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-h3-2', type='number', value=7883, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-h4-2', type='number', value=7959, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-h5-2', type='number', value=8030, style={'width': '80px'}),
+
+            ]),
+        ], className='population-section'),
+    ], className='substrac-section'),
+    
+    html.Div([
+        html.Div([
+            html.H4('Población Cordillera'),
+            html.Div([
+                html.P('Mujeres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-m1-3', type='number', value=67693, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-m2-3', type='number', value=68365, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-m3-3', type='number', value=69000, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-m4-3', type='number', value=69595, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-m5-3', type='number', value=70149, style={'width': '80px'}),
+            ]),
+            html.Div([
+                html.P('Hombres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-h1-3', type='number', value=70822, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-h2-3', type='number', value=71422, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-h3-3', type='number', value=71981, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-h4-3', type='number', value=72501, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-h5-3', type='number', value=72980, style={'width': '80px'}),
+            ]),
+        ], className='population-section'),
+        html.Div([
+            html.H4('Población Santa Cruz'),
+            html.Div([
+                html.P('Mujeres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-m1-4', type='number', value=1599058, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-m2-4', type='number', value=1631632, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-m3-4', type='number', value=1663929, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-m4-4', type='number', value=1695862, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-m5-4', type='number', value=1727403, style={'width': '80px'}),
+            ]),
+            html.Div([
+                html.P('Hombres: '),
+                html.Label('2019:'),
+                dcc.Input(id='input-h1-4', type='number', value=1638165, style={'width': '80px'}),
+                html.Label('2020:'),
+                dcc.Input(id='input-h2-4', type='number', value=1668971, style={'width': '80px'}),
+                html.Label('2021:'),
+                dcc.Input(id='input-h3-4', type='number', value=1699448, style={'width': '80px'}),
+                html.Label('2022:'),
+                dcc.Input(id='input-h4-4', type='number', value=1729537, style={'width': '80px'}),
+                html.Label('2023:'),
+                dcc.Input(id='input-h5-4', type='number', value=1759221, style={'width': '80px'}),
+            ]),
+        ], className='population-section'),
+    ], className='substrac-section'),
+    
+    html.Div([
+        html.Span('Factor'),
+        dcc.Input(id='input-factor', type='number', value=10000, style={'width': '80px'})
+    ]),
+    
+    html.H1("Gráficos de Tendencia"),
+    html.Label('Grafica a mostrar:'),
+    dcc.Dropdown(
+        id='dropdown-graphic-type',
+        options=[
+            {'label': 'Totales', 'value': 't'},
+            {'label': 'Por sexo (Comparacion Junto Municipio, Provincia, Departamento)', 'value': 's1'},
+            {'label': 'Por sexo (Comparacion Separado Municipio, Provincia, Departamento)', 'value': 's2'},
+            {'label': 'Por sexo (Comparacion entre mujeres y hombres)', 'value': 's3'},
+            {'label': 'Por edad', 'value': 'e'},
+        ],
+        value='t'  # Valor inicial seleccionado
+    ),
+    html.Label('Porcentaje o Incidencias:'),
+    dcc.Dropdown(
+        id='dropdown-type-percent',
+        options=[
+            {'label': 'Incidencias', 'value': 'Incidencia'},
+            {'label': 'Porcentajes', 'value': 'Porcentaje'},
+        ],
+        value='Incidencia'  # Valor inicial seleccionado
+    ),
+    html.Label('Seleccionar dataframes para graficar:'),
+    dcc.Dropdown(
+        id='dropdown-dataframes',
+        options=opciones_dataframes,
+        multi=True,
+        value=['Santa Cruz', 'Cordillera', 'Camiri']  # Valores iniciales seleccionados
+    ),
+    html.Div([
+        html.Label('Título del gráfico: '),
+        dcc.Input(
+            id='input-titulo',
+            type='text',
+            value='Tendencia'
+        ),
+        html.Label("Tamaño de letra titulo: "),
+        dcc.Input(
+            id='input-tamaño-titulo',
+            type='number',
+            value='16'
+        )
+    ]),
+    
+    html.Div([
+        html.Label('Pie de Pagina: '),
+        dcc.Input(
+            id='input-pie',
+            type='text',
+            value='Datos obtenidos de la página del SNIS'
+        ),
+        html.Label("Tamaño de letra pie: "),
+        dcc.Input(
+            id='input-tamaño-pie',
+            type='number',
+            value='10'
+        )
+    ]),
+    
+    html.Label('Ubicación de la leyenda:'),
+    dcc.Dropdown(
+        id='dropdown-legend-loc',
+        options=[
+            {'label': 'Arriba a la izquierda', 'value': 'upper left'},
+            {'label': 'Arriba a la derecha', 'value': 'upper right'},
+            {'label': 'Abajo a la izquierda', 'value': 'lower left'},
+            {'label': 'Abajo a la derecha', 'value': 'lower right'}
+        ],
+        value='upper left'  # Valor inicial seleccionado
+    ),
+    
+    html.Div([
+        html.Label('Tamaño de letra leyenda: '),
+        dcc.Input(
+            id='input-tamaño-leyenda',
+            type='number',
+            value='8',
+            style={'width': '80px'}
+        ),
+        html.Label("Tamaño de letra de Numeros Graficas: "),
+        dcc.Input(
+            id='input-tamaño-num-grafica',
+            type='number',
+            value='10',
+            style={'width': '80px'}
+        )
+    ]),
+    
+    html.Button('Generar Gráfico', id='btn-calcular'),
+    html.Div(id='output-data')
+])
+
+
 # Callback para actualizar el contenido según la URL
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/cancer':
-        df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
+        #df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Cancer'),
-            html.H3('Datos de CANCER-C:'),
-            generate_table(df_c_cancer),
-            html.H3('Datos de CANCER-G:'),
-            generate_table(df_g_cancer),
-            html.H3('Datos de CANCER-PC:'),
-            generate_table(df_pc_cancer),
-            html.H3('Datos de CANCER-SC:'),
-            generate_table(df_sc_cancer)
-        ])
+        ]), calculo_layout
     elif pathname == '/diabetes':
         df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
         return html.Div([

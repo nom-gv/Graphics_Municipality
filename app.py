@@ -504,7 +504,7 @@ def generate_lines_comparison_gender(df1, df2, df3, x_column, y_column, title, s
     ])
 
 
-def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, legend_loc):
+def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, legend_loc, size_bar):
     # Calcular porcentajes
     df_percent = df.copy()
     colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
@@ -598,7 +598,8 @@ def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer
     # Configuración de la figura
     fig, ax = plt.subplots(1, 2, figsize=(14, 5), sharex=True)
 
-    bar_width = 0.25  # Ancho de las barras
+
+    bar_width = size_bar  # Ancho de las barras
     years = df[x_column].unique()
 
     # Crear gráfico de barras para Hombres
@@ -1252,9 +1253,15 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                     # Verificar si todos los dataframes seleccionados están disponibles
                     if (len(selected_dataframes) == 1 and selected_dataframes[0] == 'Camiri'):
                         # Generar y retornar el gráfico con los parámetros seleccionados
-                        return plot_age_percentages(dataframes[selected_dataframes[0]], m_c, h_c, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc)
+                        if pathname == '/neumonia':
+                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_c, h_c, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
+                        else:
+                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_c, h_c, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)
                     elif (len(selected_dataframes) == 1 and selected_dataframes[0] == 'Gutierrez'):
-                        return plot_age_percentages(dataframes[selected_dataframes[0]], m_g, h_g, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc)
+                        if pathname == '/neumonia':
+                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_g, h_g, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
+                        else:
+                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_g, h_g, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)
                     else:
                             # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
                         return html.Div("")

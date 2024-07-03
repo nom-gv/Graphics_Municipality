@@ -80,6 +80,15 @@ def generate_table(dataframe, max_rows=10):
 # Definir el layout de la aplicación
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
+    html.Div([
+        dcc.Link('Home', href='/'),
+        ' | ',
+        dcc.Link('Cancer', href='/cancer'),
+        ' | ',
+        dcc.Link('Diabetes', href='/diabetes'),
+        ' | ',
+        dcc.Link('Hipertension', href='/hipertension')
+    ], style={'padding': '20px', 'background-color': '#f0f0f0', 'text-align': 'center'}),
     html.Div(id='page-content')
 ])
 

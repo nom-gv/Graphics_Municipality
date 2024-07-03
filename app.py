@@ -305,7 +305,7 @@ def generate_lines_gender(df1, df2, df3, x_column, y_column, title, size_title, 
     # Mostrar la gráfica en un componente HTML
     return html.Div([
         html.H2(title),
-        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64))
     ])
 
 def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):

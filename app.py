@@ -934,6 +934,7 @@ calculo_layout = html.Div([
     html.Div(id='output-data')
 ])
 
+app.title = "Generate Graph Municipality"
 
 # Callback para actualizar el contenido según la URL
 @app.callback(Output('page-content', 'children'),

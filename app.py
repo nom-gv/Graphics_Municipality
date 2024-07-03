@@ -1,6 +1,15 @@
 import dash
+import gdown
+import base64
+import io
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 from dash import dcc
 from dash import html
+from dash import Input, Output, State
+import plotly.graph_objs as go
 
 # Inicializar la aplicación Dash
 app = dash.Dash(__name__)

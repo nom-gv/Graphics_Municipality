@@ -120,7 +120,8 @@ def display_page(pathname):
             html.H3('Datos de CANCER-PC:'),
             generate_table(df_pc_cancer),
             html.H3('Datos de CANCER-SC:'),
-            generate_table(df_sc_cancer)
+            generate_table(df_sc_cancer),
+            html.P('Hola mundo'+pathname)
         ])
     elif pathname == '/diabetes':
         df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
@@ -133,7 +134,8 @@ def display_page(pathname):
             html.H3('Datos de DIABETES-PC:'),
             generate_table(df_pc_diabetes),
             html.H3('Datos de DIABETES-SC:'),
-            generate_table(df_sc_diabetes)
+            generate_table(df_sc_diabetes),
+            html.P('Hola mundo'+pathname)
         ])
     elif pathname == '/hipertension':
         df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension = get_casos_hipertension()
@@ -146,11 +148,13 @@ def display_page(pathname):
             html.H3('Datos de HIPERTENSION-PC:'),
             generate_table(df_pc_hipertension),
             html.H3('Datos de HIPERTENSION-SC:'),
-            generate_table(df_sc_hipertension)
+            generate_table(df_sc_hipertension),
+            html.P('Hola mundo'+pathname)
         ])
     else:
         return html.Div([
             html.H1('Mi primera aplicación Dash en Heroku'),
+            html.P('Hola mundo'+pathname),
             dcc.Graph(
                 id='example-graph',
                 figure={

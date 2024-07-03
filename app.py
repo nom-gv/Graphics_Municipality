@@ -1253,7 +1253,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                     # Verificar si todos los dataframes seleccionados están disponibles
                     if (len(selected_dataframes) == 1 and selected_dataframes[0] == 'Camiri'):
                         # Generar y retornar el gráfico con los parámetros seleccionados
-                        if pathname == '/neumonia':
+                        if pathname == '/neumonia' or pathname == '/chagas':
                             return plot_age_percentages(dataframes[selected_dataframes[0]], m_c, h_c, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
                         else:
                             return plot_age_percentages(dataframes[selected_dataframes[0]], m_c, h_c, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)

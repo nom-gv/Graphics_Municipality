@@ -316,9 +316,9 @@ def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, siz
     fig, ax = plt.subplots(2, 3, figsize=(14, 8), sharey=True)
 
     # Gráfica para hombres - Departamento
-    ax[0, 0].plot(df3[df3['Sexo'] == 'Hombre'][x_column], df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[5], marker='o', linestyle='-', label=labels[0])
+    ax[0, 0].plot(df3[df3['Sexo'] == 'Hombre'][x_column], df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[5], marker='o', linestyle='-', label=labels[2])
     ax[0, 0].set_xlabel(x_column)
-    ax[0, 0].set_title(f'Tendencia Municipal - {labels[0]}')
+    ax[0, 0].set_title(f'Tendencia Municipal - {labels[2]}')
     ax[0, 0].legend(loc=legend_loc, fontsize=size_legend)
     ax[0, 0].set_xticks(años)
 
@@ -330,9 +330,9 @@ def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, siz
     ax[0, 1].set_xticks(años)
 
     # Gráfica para hombres - Municipio
-    ax[0, 2].plot(df1[df1['Sexo'] == 'Hombre'][x_column], df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[7], marker='o', linestyle='-', label=labels[2])
+    ax[0, 2].plot(df1[df1['Sexo'] == 'Hombre'][x_column], df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[7], marker='o', linestyle='-', label=labels[0])
     ax[0, 2].set_xlabel(x_column)
-    ax[0, 2].set_title(f'Tendencia Departamental - {labels[2]}')
+    ax[0, 2].set_title(f'Tendencia Departamental - {labels[0]}')
     ax[0, 2].legend(loc=legend_loc, fontsize=size_legend)
     ax[0, 2].set_xticks(años)
 
@@ -356,9 +356,9 @@ def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, siz
             ax[0, 2].text(x, y, f"{y:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
 
     # Gráfica para mujeres - Departamento
-    ax[1, 0].plot(df3[df3['Sexo'] == 'Mujer'][x_column], df3[df3['Sexo'] == 'Mujer'][y_column], color=colors[0], marker='o', linestyle='-', label=labels[0])
+    ax[1, 0].plot(df3[df3['Sexo'] == 'Mujer'][x_column], df3[df3['Sexo'] == 'Mujer'][y_column], color=colors[0], marker='o', linestyle='-', label=labels[2])
     ax[1, 0].set_xlabel(x_column)
-    ax[1, 0].set_title(f'Tendencia Municipal - {labels[0]}')
+    ax[1, 0].set_title(f'Tendencia Municipal - {labels[2]}')
     ax[1, 0].legend(loc=legend_loc, fontsize=size_legend)
     ax[1, 0].set_xticks(años)
 
@@ -370,9 +370,9 @@ def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, siz
     ax[1, 1].set_xticks(años)
 
     # Gráfica para mujeres - Municipio
-    ax[1, 2].plot(df1[df1['Sexo'] == 'Mujer'][x_column], df1[df1['Sexo'] == 'Mujer'][y_column], color=colors[2], marker='o', linestyle='-', label=labels[2])
+    ax[1, 2].plot(df1[df1['Sexo'] == 'Mujer'][x_column], df1[df1['Sexo'] == 'Mujer'][y_column], color=colors[2], marker='o', linestyle='-', label=labels[0])
     ax[1, 2].set_xlabel(x_column)
-    ax[1, 2].set_title(f'Tendencia Departamental - {labels[2]}')
+    ax[1, 2].set_title(f'Tendencia Departamental - {labels[0]}')
     ax[1, 2].legend(loc=legend_loc, fontsize=size_legend)
     ax[1, 2].set_xticks(años)
     
@@ -430,10 +430,10 @@ def generate_lines_comparison_gender(df1, df2, df3, x_column, y_column, title, s
     fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
 
     # Gráfica para Municipio
-    ax[0].plot(df1[df1['Sexo'] == 'Hombre'][x_column], df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[5], marker='o', linestyle='-', label=f'Hombres - {labels[0]}')
-    ax[0].plot(df1[df1['Sexo'] == 'Mujer'][x_column], df1[df1['Sexo'] == 'Mujer'][y_column], color=colors[0], marker='o', linestyle='-', label=f'Mujeres - {labels[0]}')
+    ax[0].plot(df3[df3['Sexo'] == 'Hombre'][x_column], df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[5], marker='o', linestyle='-', label=f'Hombres - {labels[2]}')
+    ax[0].plot(df3[df3['Sexo'] == 'Mujer'][x_column], df3[df3['Sexo'] == 'Mujer'][y_column], color=colors[0], marker='o', linestyle='-', label=f'Mujeres - {labels[2]}')
     ax[0].set_xlabel(x_column)
-    ax[0].set_title(f'Tendencia Municipal - {labels[0]}')
+    ax[0].set_title(f'Tendencia Municipal - {labels[2]}')
     ax[0].legend(loc=legend_loc, fontsize=size_legend)
     ax[0].set_xticks(años)
         
@@ -446,10 +446,10 @@ def generate_lines_comparison_gender(df1, df2, df3, x_column, y_column, title, s
     ax[1].set_xticks(años)
     
     # Gráfica para Departamento
-    ax[2].plot(df3[df3['Sexo'] == 'Hombre'][x_column], df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[7], marker='o', linestyle='-', label=f'Hombres - {labels[2]}')
-    ax[2].plot(df3[df3['Sexo'] == 'Mujer'][x_column], df3[df3['Sexo'] == 'Mujer'][y_column], color=colors[2], marker='o', linestyle='-', label=f'Mujeres - {labels[2]}')
+    ax[2].plot(df1[df1['Sexo'] == 'Hombre'][x_column], df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[7], marker='o', linestyle='-', label=f'Hombres - {labels[0]}')
+    ax[2].plot(df1[df1['Sexo'] == 'Mujer'][x_column], df1[df1['Sexo'] == 'Mujer'][y_column], color=colors[2], marker='o', linestyle='-', label=f'Mujeres - {labels[0]}')
     ax[2].set_xlabel(x_column)
-    ax[2].set_title(f'Tendencia Departamental - {labels[2]}')
+    ax[2].set_title(f'Tendencia Departamental - {labels[0]}')
     ax[2].legend(loc=legend_loc, fontsize=size_legend)
     ax[2].set_xticks(años)
 
@@ -941,7 +941,7 @@ def display_page(pathname):
     if pathname == '/cancer' or pathname == '/diabetes' or pathname == '/hipertension' or pathname == '/obesidad' or pathname == '/neumonia' or pathname == '/chagas' or pathname == '/vih':
         #df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
         return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos Cancer'),
+            html.H1('Recolección de datos - Análisis de Datos '+ pathname[1:-1]),
         ]), calculo_layout
     else:
         return html.Div([

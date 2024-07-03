@@ -236,11 +236,15 @@ def generate_lines_total(df1, df2, df3, x_column, y_column, title, size_title, f
     tmp_file.seek(0)
     plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
 
-    # Mostrar la gráfica en un componente HTML
+     # Mostrar la gráfica en un componente HTML
     return html.Div([
         html.H2(title),
-        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
-    ])
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%', 'max-width': '70%'}),
+    ], style={
+        'display': 'flex',
+        'justify-content': 'center',
+        'align-items': 'center'
+    })
     
 
 # Función para generar la gráfica y mostrarla en base64

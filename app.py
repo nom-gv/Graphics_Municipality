@@ -1,12 +1,16 @@
 import dash
 from dash import dcc
 from dash import html
+
 # Inicializar la aplicación Dash
 app = dash.Dash(__name__)
 
+# Definir el servidor
+server = app.server
+
 # Definir el layout de la aplicación
 app.layout = html.Div([
-    html.H1('Mi primera aplicación Dash en PythonAnywhere'),
+    html.H1('Mi primera aplicación Dash en Heroku'),
     dcc.Graph(
         id='example-graph',
         figure={

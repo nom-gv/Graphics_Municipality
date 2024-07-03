@@ -57,23 +57,95 @@ app = dash.Dash(__name__)
 # Definir el servidor
 server = app.server
 
+# Funciones para obtener datos de los archivos
+def get_casos_cancer():
+    df_c_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-C")
+    df_g_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-G")
+    df_pc_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-PC")
+    df_sc_cancer = pd.read_excel('CasosCancer.xlsx', sheet_name="CANCER-SC")
+    return df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer
+
+# Función para mostrar los DataFrames en HTML
+def generate_table(dataframe, max_rows=10):
+    return html.Table(
+        # Header
+        [html.Tr([html.Th(col) for col in dataframe.columns])] +
+
+        # Body
+        [html.Tr([
+            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
+        ]) for i in range(min(len(dataframe), max_rows))]
+    )
 
 # Definir el layout de la aplicación
 app.layout = html.Div([
-    html.H1('Mi primera aplicación Dash en Heroku'),
-    dcc.Graph(
-        id='example-graph',
-        figure={
-            'data': [
-                {'x': [1, 2, 3], 'y': [8, 5, 2], 'type': 'bar', 'name': 'SF'},
-                {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': 'Montreal'},
-            ],
-            'layout': {
-                'title': 'ACTUALIZACION PAGINA'
-            }
-        }
-    )
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
 ])
+
+# Callback para actualizar el contenido según la URL
+@app.callback(Output('page-content', 'children'),
+              Input('url', 'pathname'))
+def display_page(pathname):
+    if pathname == '/cancer':
+        df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Cancer'),
+            html.H3('Datos de CANCER-C:'),
+            generate_table(df_c_cancer),
+            html.H3('Datos de CANCER-G:'),
+            generate_table(df_g_cancer),
+            html.H3('Datos de CANCER-PC:'),
+            generate_table(df_pc_cancer),
+            html.H3('Datos de CANCER-SC:'),
+            generate_table(df_sc_cancer)
+        ])
+    elif pathname == '/diabetes':
+        df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Diabetes'),
+            html.H3('Datos de DIABETES-C:'),
+            generate_table(df_c_diabetes),
+            html.H3('Datos de DIABETES-G:'),
+            generate_table(df_g_diabetes),
+            html.H3('Datos de DIABETES-PC:'),
+            generate_table(df_pc_diabetes),
+            html.H3('Datos de DIABETES-SC:'),
+            generate_table(df_sc_diabetes)
+        ])
+    elif pathname == '/hipertension':
+        df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension = get_casos_hipertension()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Hipertensión'),
+            html.H3('Datos de HIPERTENSION-C:'),
+            generate_table(df_c_hipertension),
+            html.H3('Datos de HIPERTENSION-G:'),
+            generate_table(df_g_hipertension),
+            html.H3('Datos de HIPERTENSION-PC:'),
+            generate_table(df_pc_hipertension),
+            html.H3('Datos de HIPERTENSION-SC:'),
+            generate_table(df_sc_hipertension)
+        ])
+    else:
+        return html.Div([
+            html.H1('Mi primera aplicación Dash en Heroku'),
+            dcc.Graph(
+                id='example-graph',
+                figure={
+                    'data': [
+                        {'x': [1, 2, 3], 'y': [8, 5, 2], 'type': 'bar', 'name': 'SF'},
+                        {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': 'Montreal'},
+                    ],
+                    'layout': {
+                        'title': 'ACTUALIZACION PAGINA'
+                    }
+                }
+            )
+        ])
+
+# Ejecutar la aplicación
+if __name__ == '__main__':
+    app.run_server(debug=True)
 
 # Ejecutar la aplicación
 if __name__ == '__main__':

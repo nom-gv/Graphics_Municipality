@@ -239,23 +239,7 @@ def generate_lines_total(df1, df2, df3, x_column, y_column, title, size_title, f
      # Mostrar la gráfica en un componente HTML
     return html.Div([
         html.H2(title),
-        html.Img(src='data:image/png;base64,{}'.format(plot_base64), className='responsive-graph'),
-        html.Style('''
-            @media (max-width: 900px) {
-                .responsive-graph {
-                    width: 100%;
-                }
-            }
-            @media (min-width: 900px) {
-                .responsive-graph {
-                    width: 70%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                }
-            }
-        ''')
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), className='responsive-graph')
     ])
     
 

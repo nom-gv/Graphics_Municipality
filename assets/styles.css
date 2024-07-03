@@ -55,8 +55,23 @@
     padding: 0;
 }
 
-.factor-section {
+/*.factor-section {
     /*display: inline-block;
     vertical-align: top;
     margin-bottom: 20px;*/
+/*}*/
+
+@media (max-width: 900px) {
+    #responsive-graph {
+        width: 100%;
+    }
+}
+@media (min-width: 900px) {
+    #responsive-graph {
+        width: 70%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
 }

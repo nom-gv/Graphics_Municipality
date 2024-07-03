@@ -938,39 +938,11 @@ calculo_layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
-    if pathname == '/cancer':
+    if pathname == '/cancer' or pathname == '/diabetes' or pathname == '/hipertension' or pathname == '/obesidad' or pathname == '/neumonia' or pathname == '/chagas' or pathname == '/vih':
         #df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Cancer'),
         ]), calculo_layout
-    elif pathname == '/diabetes':
-        df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
-        return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos Diabetes'),
-            html.H3('Datos de DIABETES-C:'),
-            generate_table(df_c_diabetes),
-            html.H3('Datos de DIABETES-G:'),
-            generate_table(df_g_diabetes),
-            html.H3('Datos de DIABETES-PC:'),
-            generate_table(df_pc_diabetes),
-            html.H3('Datos de DIABETES-SC:'),
-            generate_table(df_sc_diabetes),
-            html.P('Hola mundo'+pathname)
-        ])
-    elif pathname == '/hipertension':
-        df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension = get_casos_hipertension()
-        return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos Hipertensión'),
-            html.H3('Datos de HIPERTENSION-C:'),
-            generate_table(df_c_hipertension),
-            html.H3('Datos de HIPERTENSION-G:'),
-            generate_table(df_g_hipertension),
-            html.H3('Datos de HIPERTENSION-PC:'),
-            generate_table(df_pc_hipertension),
-            html.H3('Datos de HIPERTENSION-SC:'),
-            generate_table(df_sc_hipertension),
-            html.P('Hola mundo'+pathname)
-        ])
     else:
         return html.Div([
             html.H1('Mi primera aplicación Dash en Heroku'),

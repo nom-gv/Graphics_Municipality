@@ -7,3 +7,4 @@ gdown
 plotly
 flask
 gunicorn
+openpyxl

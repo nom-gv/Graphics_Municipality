@@ -120,8 +120,7 @@ def display_page(pathname):
             html.H3('Datos de CANCER-PC:'),
             generate_table(df_pc_cancer),
             html.H3('Datos de CANCER-SC:'),
-            generate_table(df_sc_cancer),
-            html.P('Hola mundo'+pathname)
+            generate_table(df_sc_cancer)
         ])
     elif pathname == '/diabetes':
         df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()

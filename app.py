@@ -43,7 +43,6 @@ archivos = [
     ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
     ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'),
     ('DatosPoblaciones.xlsx','11On6kmZq_frtfNx8Q-mc-Ei3-rVayleH')
-    ('DatosEspeciales.xlsx','1NoaMbxqsDrw3gtya91fnE2TPZo54Dxf6')
 ]
 
 # Función para descargar todos los archivos en un hilo separado
@@ -147,8 +146,6 @@ def get_poblacion():
     df_pc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-PC")
     df_sc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-SC")
     return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
-
-
 
 def calculate_gender(df, factor, m, h):
     # Población estimada
@@ -726,12 +723,7 @@ def create_table(dataframe):
                 'color': 'black'
             },
         ],
-        style_cell={'textAlign': 'center', 'width': '150px', 'minWidth': '150px', 'maxWidth': '150px'},
-        style_table={'width': '100%'},
-        style_header={
-            'backgroundColor': 'rgb(230, 230, 230)',
-            'fontWeight': 'bold'
-        }
+        style_cell={'textAlign': 'center'}
     )
 
 # Definir opciones de dataframes
@@ -998,10 +990,11 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 tamanio_num_grafica = int(tamanio_num_grafica)
             else:
                 tamanio_num_grafica = 10
-
+            
+            
             fig = go.Figure()
             
-            # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
+             # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
             if pathname == '/cancer':
                 df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
                 
@@ -1019,6 +1012,8 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_g = calculate_gender(df_g_cancer, factor, m_2, h_2)
                 df_pc = calculate_gender(df_pc_cancer, factor, m_3, h_3)
                 df_sc = calculate_gender(df_sc_cancer, factor, m_4, h_4)
+            
+                    
             elif pathname == '/diabetes':
                 df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
                 
@@ -1036,6 +1031,8 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_g = calculate_gender(df_g_diabetes, factor, m_2, h_2)
                 df_pc = calculate_gender(df_pc_diabetes, factor, m_3, h_3)
                 df_sc = calculate_gender(df_sc_diabetes, factor, m_4, h_4)
+                
+                print(factor, p)
             elif pathname == '/hipertension':
                 df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension = get_casos_hipertension()
                 
@@ -1053,6 +1050,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_g = calculate_gender(df_g_hipertension, factor, m_2, h_2)
                 df_pc = calculate_gender(df_pc_hipertension, factor, m_3, h_3)
                 df_sc = calculate_gender(df_sc_hipertension, factor, m_4, h_4)
+                
             elif pathname == '/obesidad':
                 df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad = get_casos_obesidad()
                 
@@ -1070,6 +1068,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_g = calculate_gender(df_g_obesidad, factor, m_2, h_2)
                 df_pc = calculate_gender(df_pc_obesidad, factor, m_3, h_3)
                 df_sc = calculate_gender(df_sc_obesidad, factor, m_4, h_4)
+                
             elif pathname == '/neumonia':
                 df_c_neumonia, df_g_neumonia, df_pc_neumonia, df_sc_neumonia = get_casos_neumonia()
                 
@@ -1087,6 +1086,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_g = calculate_gender(df_g_neumonia, factor, m_2, h_2)
                 df_pc = calculate_gender(df_pc_neumonia, factor, m_3, h_3)
                 df_sc = calculate_gender(df_sc_neumonia, factor, m_4, h_4)
+                
             elif pathname == '/chagas':
                 df_c_chagas, df_g_chagas, df_pc_chagas, df_sc_chagas = get_casos_neumonia()
                 
@@ -1104,6 +1104,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_g = calculate_gender(df_g_chagas, factor, m_2, h_2)
                 df_pc = calculate_gender(df_pc_chagas, factor, m_3, h_3)
                 df_sc = calculate_gender(df_sc_chagas, factor, m_4, h_4)
+                
             elif pathname == '/vih':
                 df_c_vih, df_g_vih, df_pc_vih, df_sc_vih = get_casos_vih()
                 
@@ -1121,6 +1122,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_g = calculate_gender(df_g_vih, factor, m_2, h_2)
                 df_pc = calculate_gender(df_pc_vih, factor, m_3, h_3)
                 df_sc = calculate_gender(df_sc_vih, factor, m_4, h_4)
+                
             
             if n_clicks > 0:
                 # Seleccionar los dataframes según la selección del usuario

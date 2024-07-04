@@ -149,10 +149,10 @@ def get_poblacion():
     return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
 
 def get_poblacion_especial():
-    df_c_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-C")
-    df_g_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-G")
-    df_pc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-PC")
-    df_sc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-SC")
+    df_c_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-C")
+    df_g_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-G")
+    df_pc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-PC")
+    df_sc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-SC")
     return df_c_especial, df_g_especial, df_pc_especial, df_sc_especial
 
 def calculate_gender(df, factor, m, h):
@@ -1003,6 +1003,8 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 tamanio_num_grafica = int(tamanio_num_grafica)
             else:
                 tamanio_num_grafica = 10
+
+            fig = go.Figure()
             
              # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
             if pathname == '/cancer':
@@ -1019,25 +1021,23 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df1, df2, df3, df4 = get_casos_neumonia()
             elif pathname == '/vih':
                 df1, df2, df3, df4 = get_casos_vih()
-                
-            df_c_t = generate_total(df1)
-            df_g_t = generate_total(df2)
-            df_pc_t = generate_total(df3)
-            df_sc_t = generate_total(df4)
-                
-            df_c_t = calculate_total(df_c_t, factor, p)
-            df_g_t = calculate_total(df_g_t, factor, p_2)
-            df_pc_t = calculate_total(df_pc_t, factor, p_3)
-            df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-            df_c = calculate_gender(df1, factor, m, h)
-            df_g = calculate_gender(df2, factor, m_2, h_2)
-            df_pc = calculate_gender(df3, factor, m_3, h_3)
-            df_sc = calculate_gender(df4, factor, m_4, h_4)
             
-            #fig = go.Figure()
-
             if n_clicks > 0:
+                df_c_t = generate_total(df1)
+                df_g_t = generate_total(df2)
+                df_pc_t = generate_total(df3)
+                df_sc_t = generate_total(df4)
+                    
+                df_c_t = calculate_total(df_c_t, factor, p)
+                df_g_t = calculate_total(df_g_t, factor, p_2)
+                df_pc_t = calculate_total(df_pc_t, factor, p_3)
+                df_sc_t = calculate_total(df_sc_t, factor, p_4)
+                    
+                df_c = calculate_gender(df1, factor, m, h)
+                df_g = calculate_gender(df2, factor, m_2, h_2)
+                df_pc = calculate_gender(df3, factor, m_3, h_3)
+                df_sc = calculate_gender(df4, factor, m_4, h_4)
+
                 # Seleccionar los dataframes según la selección del usuario
                 df_c.sort_values(by='Año', inplace=True)
                 df_g.sort_values(by='Año', inplace=True)
@@ -1084,7 +1084,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                     # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
                     return html.Div("")
 
-            return html.Div("")
+            return dcc.Graph(figure=fig)
                     
         except Exception as e:
             return html.Div(f'Error: {e}')

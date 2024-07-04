@@ -853,49 +853,49 @@ app.title = "Generate Graph Municipality"
               Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/cancer':
-        df_c_cancer, df_g_cancer = get_casos_cancer()
+        df_c_cancer, df_g_cancer, d1, d2 = get_casos_cancer()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Cancer'),
             create_table(df_c_cancer),
             create_table(df_g_cancer)
         ]), calculo_layout
     elif pathname == '/diabetes':
-        df_c_diabetes, df_g_diabetes = get_casos_diabetes()
+        df_c_diabetes, df_g_diabetes, d1, d2 = get_casos_diabetes()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Diabetes'),
             create_table(df_c_diabetes),
             create_table(df_g_diabetes)
         ]), calculo_layout
     elif pathname == '/hipertension':
-        df_c_hipertension, df_g_hipertension = get_casos_hipertension()
+        df_c_hipertension, df_g_hipertension, d1, d2 = get_casos_hipertension()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
             create_table(df_c_hipertension),
             create_table(df_g_hipertension)
         ]), calculo_layout
     elif pathname == '/obesidad':
-        df_c_obesidad, df_g_obesidad = get_casos_obesidad()
+        df_c_obesidad, df_g_obesidad, d1, d2 = get_casos_obesidad()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
             create_table(df_c_obesidad),
             create_table(df_g_obesidad)
         ]), calculo_layout
     elif pathname == '/neumonia':
-        df_c_neumonia, df_g_neumonia = get_casos_neumonia()
+        df_c_neumonia, df_g_neumonia, d1, d2 = get_casos_neumonia()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
             create_table(df_c_neumonia),
             create_table(df_g_neumonia)
         ]), calculo_layout
     elif pathname == '/chagas':
-        df_c_chagas, df_g_chagas = get_casos_chagas()
+        df_c_chagas, df_g_chagas, d1, d2 = get_casos_chagas()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
             create_table(df_c_chagas),
             create_table(df_g_chagas)
         ]), calculo_layout
     elif pathname == '/vih':
-        df_c_vih, df_g_vih = get_casos_vih()
+        df_c_vih, df_g_vih, d1, d2 = get_casos_vih()
         return html.Div([
             html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
             create_table(df_c_vih),

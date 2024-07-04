@@ -1091,8 +1091,7 @@ def display_page(pathname):
             html.H2('Datos Gutierrez'),
             create_table(df_g_nutricion),
 
-
-            calculo_layout
+            calculo_layout_nutrition
         ])
     else:
         return html.Div([
@@ -1126,9 +1125,7 @@ def display_page(pathname):
         Input('input-tamaño-pie', 'value'),
         Input('input-tamaño-leyenda', 'value'),
         Input('input-tamaño-num-grafica', 'value'),
-        Input('dropdown-legend-loc', 'value'),
-        Input('dropdown-state-nutrition', 'value'),
-        Input('dropdown-state-nutrition', 'value', allow_missing=True) 
+        Input('dropdown-legend-loc', 'value')
     ],
     [State('input-factor', 'value'),
      State('url', 'pathname')]  # Capturar el pathname actual
@@ -1278,8 +1275,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
         Input('input-tamaño-leyenda', 'value'),
         Input('input-tamaño-num-grafica', 'value'),
         Input('dropdown-legend-loc', 'value'),
-        Input('dropdown-state-nutrition', 'value'),
-        Input('dropdown-state-nutrition', 'value', allow_missing=True) 
+        Input('dropdown-state-nutrition', 'value')
     ],
     [State('input-factor', 'value'),
      State('url', 'pathname')]  # Capturar el pathname actual

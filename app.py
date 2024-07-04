@@ -43,6 +43,7 @@ archivos = [
     ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
     ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'),
     ('DatosPoblaciones.xlsx','11On6kmZq_frtfNx8Q-mc-Ei3-rVayleH')
+    ('DatosEspeciales.xlsx','1NoaMbxqsDrw3gtya91fnE2TPZo54Dxf6')
 ]
 
 # Función para descargar todos los archivos en un hilo separado
@@ -146,6 +147,13 @@ def get_poblacion():
     df_pc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-PC")
     df_sc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-SC")
     return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
+
+def get_poblacion_especial():
+    df_c_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-C")
+    df_g_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-G")
+    df_pc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-PC")
+    df_sc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="POBLACION-SC")
+    return df_c_especial, df_g_especial, df_pc_especial, df_sc_especial
 
 def calculate_gender(df, factor, m, h):
     # Población estimada
@@ -1027,6 +1035,8 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
             df_pc = calculate_gender(df3, factor, m_3, h_3)
             df_sc = calculate_gender(df4, factor, m_4, h_4)
             
+            fig = go.Figure()
+
             if n_clicks > 0:
                 # Seleccionar los dataframes según la selección del usuario
                 df_c.sort_values(by='Año', inplace=True)

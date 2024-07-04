@@ -1006,38 +1006,128 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
 
             fig = go.Figure()
             
-             # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
+            # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
             if pathname == '/cancer':
-                df1, df2, df3, df4 = get_casos_cancer()
-            elif pathname == '/diabetes':
-                df1, df2, df3, df4 = get_casos_diabetes()
-            elif pathname == '/hipertension':
-                df1, df2, df3, df4 = get_casos_hipertension()
-            elif pathname == '/obesidad':
-                df1, df2, df3, df4 = get_casos_obesidad()
-            elif pathname == '/neumonia':
-                df1, df2, df3, df4 = get_casos_neumonia()
-            elif pathname == '/chagas':
-                df1, df2, df3, df4 = get_casos_neumonia()
-            elif pathname == '/vih':
-                df1, df2, df3, df4 = get_casos_vih()
-            
-            if n_clicks > 0:
-                df_c_t = generate_total(df1)
-                df_g_t = generate_total(df2)
-                df_pc_t = generate_total(df3)
-                df_sc_t = generate_total(df4)
-                    
+                df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
+                
+                df_c_t = generate_total(df_c_cancer)
+                df_g_t = generate_total(df_g_cancer)
+                df_pc_t = generate_total(df_pc_cancer)
+                df_sc_t = generate_total(df_sc_cancer)
+                
                 df_c_t = calculate_total(df_c_t, factor, p)
                 df_g_t = calculate_total(df_g_t, factor, p_2)
                 df_pc_t = calculate_total(df_pc_t, factor, p_3)
                 df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                    
-                df_c = calculate_gender(df1, factor, m, h)
-                df_g = calculate_gender(df2, factor, m_2, h_2)
-                df_pc = calculate_gender(df3, factor, m_3, h_3)
-                df_sc = calculate_gender(df4, factor, m_4, h_4)
-
+                
+                df_c = calculate_gender(df_c_cancer, factor, m, h)
+                df_g = calculate_gender(df_g_cancer, factor, m_2, h_2)
+                df_pc = calculate_gender(df_pc_cancer, factor, m_3, h_3)
+                df_sc = calculate_gender(df_sc_cancer, factor, m_4, h_4)
+            elif pathname == '/diabetes':
+                df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
+                
+                df_c_t = generate_total(df_c_diabetes)
+                df_g_t = generate_total(df_g_diabetes)
+                df_pc_t = generate_total(df_pc_diabetes)
+                df_sc_t = generate_total(df_sc_diabetes)
+                
+                df_c_t = calculate_total(df_c_t, factor, p)
+                df_g_t = calculate_total(df_g_t, factor, p_2)
+                df_pc_t = calculate_total(df_pc_t, factor, p_3)
+                df_sc_t = calculate_total(df_sc_t, factor, p_4)
+                
+                df_c = calculate_gender(df_c_diabetes, factor, m, h)
+                df_g = calculate_gender(df_g_diabetes, factor, m_2, h_2)
+                df_pc = calculate_gender(df_pc_diabetes, factor, m_3, h_3)
+                df_sc = calculate_gender(df_sc_diabetes, factor, m_4, h_4)
+            elif pathname == '/hipertension':
+                df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension = get_casos_hipertension()
+                
+                df_c_t = generate_total(df_c_hipertension)
+                df_g_t = generate_total(df_g_hipertension)
+                df_pc_t = generate_total(df_pc_hipertension)
+                df_sc_t = generate_total(df_sc_hipertension)
+                
+                df_c_t = calculate_total(df_c_t, factor, p)
+                df_g_t = calculate_total(df_g_t, factor, p_2)
+                df_pc_t = calculate_total(df_pc_t, factor, p_3)
+                df_sc_t = calculate_total(df_sc_t, factor, p_4)
+                
+                df_c = calculate_gender(df_c_hipertension, factor, m, h)
+                df_g = calculate_gender(df_g_hipertension, factor, m_2, h_2)
+                df_pc = calculate_gender(df_pc_hipertension, factor, m_3, h_3)
+                df_sc = calculate_gender(df_sc_hipertension, factor, m_4, h_4)
+            elif pathname == '/obesidad':
+                df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad = get_casos_obesidad()
+                
+                df_c_t = generate_total(df_c_obesidad)
+                df_g_t = generate_total(df_g_obesidad)
+                df_pc_t = generate_total(df_pc_obesidad)
+                df_sc_t = generate_total(df_sc_obesidad)
+                
+                df_c_t = calculate_total(df_c_t, factor, p)
+                df_g_t = calculate_total(df_g_t, factor, p_2)
+                df_pc_t = calculate_total(df_pc_t, factor, p_3)
+                df_sc_t = calculate_total(df_sc_t, factor, p_4)
+                
+                df_c = calculate_gender(df_c_obesidad, factor, m, h)
+                df_g = calculate_gender(df_g_obesidad, factor, m_2, h_2)
+                df_pc = calculate_gender(df_pc_obesidad, factor, m_3, h_3)
+                df_sc = calculate_gender(df_sc_obesidad, factor, m_4, h_4)
+            elif pathname == '/neumonia':
+                df_c_neumonia, df_g_neumonia, df_pc_neumonia, df_sc_neumonia = get_casos_neumonia()
+                
+                df_c_t = generate_total(df_c_neumonia)
+                df_g_t = generate_total(df_g_neumonia)
+                df_pc_t = generate_total(df_pc_neumonia)
+                df_sc_t = generate_total(df_sc_neumonia)
+                
+                df_c_t = calculate_total(df_c_t, factor, p)
+                df_g_t = calculate_total(df_g_t, factor, p_2)
+                df_pc_t = calculate_total(df_pc_t, factor, p_3)
+                df_sc_t = calculate_total(df_sc_t, factor, p_4)
+                
+                df_c = calculate_gender(df_c_neumonia, factor, m, h)
+                df_g = calculate_gender(df_g_neumonia, factor, m_2, h_2)
+                df_pc = calculate_gender(df_pc_neumonia, factor, m_3, h_3)
+                df_sc = calculate_gender(df_sc_neumonia, factor, m_4, h_4)
+            elif pathname == '/chagas':
+                df_c_chagas, df_g_chagas, df_pc_chagas, df_sc_chagas = get_casos_neumonia()
+                
+                df_c_t = generate_total(df_c_chagas)
+                df_g_t = generate_total(df_g_chagas)
+                df_pc_t = generate_total(df_pc_chagas)
+                df_sc_t = generate_total(df_sc_chagas)
+                
+                df_c_t = calculate_total(df_c_t, factor, p)
+                df_g_t = calculate_total(df_g_t, factor, p_2)
+                df_pc_t = calculate_total(df_pc_t, factor, p_3)
+                df_sc_t = calculate_total(df_sc_t, factor, p_4)
+                
+                df_c = calculate_gender(df_c_chagas, factor, m, h)
+                df_g = calculate_gender(df_g_chagas, factor, m_2, h_2)
+                df_pc = calculate_gender(df_pc_chagas, factor, m_3, h_3)
+                df_sc = calculate_gender(df_sc_chagas, factor, m_4, h_4)
+            elif pathname == '/vih':
+                df_c_vih, df_g_vih, df_pc_vih, df_sc_vih = get_casos_vih()
+                
+                df_c_t = generate_total(df_c_vih)
+                df_g_t = generate_total(df_g_vih)
+                df_pc_t = generate_total(df_pc_vih)
+                df_sc_t = generate_total(df_sc_vih)
+                
+                df_c_t = calculate_total(df_c_t, factor, p)
+                df_g_t = calculate_total(df_g_t, factor, p_2)
+                df_pc_t = calculate_total(df_pc_t, factor, p_3)
+                df_sc_t = calculate_total(df_sc_t, factor, p_4)
+                
+                df_c = calculate_gender(df_c_vih, factor, m, h)
+                df_g = calculate_gender(df_g_vih, factor, m_2, h_2)
+                df_pc = calculate_gender(df_pc_vih, factor, m_3, h_3)
+                df_sc = calculate_gender(df_sc_vih, factor, m_4, h_4)
+            
+            if n_clicks > 0:
                 # Seleccionar los dataframes según la selección del usuario
                 df_c.sort_values(by='Año', inplace=True)
                 df_g.sort_values(by='Año', inplace=True)

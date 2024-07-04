@@ -148,12 +148,7 @@ def get_poblacion():
     df_sc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-SC")
     return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
 
-def get_poblacion_especial():
-    df_c_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-C")
-    df_g_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-G")
-    df_pc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-PC")
-    df_sc_especial = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIAL-SC")
-    return df_c_especial, df_g_especial, df_pc_especial, df_sc_especial
+
 
 def calculate_gender(df, factor, m, h):
     # Población estimada

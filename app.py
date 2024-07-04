@@ -43,7 +43,6 @@ archivos = [
     ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
     ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'),
     ('DatosPoblaciones.xlsx','11On6kmZq_frtfNx8Q-mc-Ei3-rVayleH')
-    ('DatosEspeciales.xlsx','1NoaMbxqsDrw3gtya91fnE2TPZo54Dxf6')
 ]
 
 # Función para descargar todos los archivos en un hilo separado
@@ -147,14 +146,6 @@ def get_poblacion():
     df_pc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-PC")
     df_sc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-SC")
     return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
-
-def get_poblacion_especial():
-    df_c_poblacion = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-C")
-    df_g_poblacion = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-G")
-    df_pc_poblacion = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-PC")
-    df_sc_poblacion = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-SC")
-    return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
-    
 
 def calculate_gender(df, factor, m, h):
     # Población estimada
@@ -521,66 +512,6 @@ def generate_lines_comparison_gender(df1, df2, df3, x_column, y_column, title, s
         html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
     ])
 
-def generate_lines_comparison_pregnan(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
-    años = sorted(df1[x_column].unique())
-    colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
-    años = sorted(df1[x_column].unique())
-
-    fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
-
-    # Gráfica para Municipio
-    ax[0].plot(df3[x_column], df3[y_column], color=colors[2], marker='o', linestyle='-', label=f'{labels[2]}')
-    ax[0].set_xlabel(x_column)
-    ax[0].set_title(f'Tendencia Municipal - {labels[0]}')
-    ax[0].legend(loc=legend_loc, fontsize=size_legend)
-    ax[0].set_xticks(años)
-
-    # Gráfica para Provincia
-    ax[1].plot(df2[x_column], df2[y_column], color=colors[1], marker='o', linestyle='-', label=f'{labels[1]}')
-    ax[1].set_xlabel(x_column)
-    ax[1].set_title(f'Tendencia Provincial - {labels[1]}')
-    ax[1].legend(loc=legend_loc, fontsize=size_legend)
-    ax[1].set_xticks(años)
-
-    # Gráfica para Departamento
-    ax[2].plot(df1[x_column], df1[y_column], color=colors[0], marker='o', linestyle='-', label=f'{labels[0]}')
-    ax[2].set_xlabel(x_column)
-    ax[2].set_title(f'Tendencia Departamental - {labels[2]}')
-    ax[2].legend(loc=legend_loc, fontsize=size_legend)
-    ax[2].set_xticks(años)
-
-    if y_column == 'Incidencia':
-        for x, y in zip(df3[x_column], df3[y_column]):
-            ax[0].text(x, y, f"{y:.0f}", ha='center', va='bottom', fontsize=size_graph, color='black')
-        for x, y in zip(df2[x_column], df2[y_column]):
-            ax[1].text(x, y, f"{y:.0f}", ha='center', va='bottom', fontsize=size_graph, color='black')
-        for x, y in zip(df1[x_column], df1[y_column]):
-            ax[2].text(x, y, f"{y:.0f}", ha='center', va='bottom', fontsize=size_graph, color='black')
-    else:
-        for x, y in zip(df3[x_column], df3[y_column]):
-            ax[0].text(x, y, f"{y:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
-        for x, y in zip(df2[x_column], df2[y_column]):
-            ax[1].text(x, y, f"{y:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
-        for x, y in zip(df1[x_column], df1[y_column]):
-            ax[2].text(x, y, f"{y:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
-
-    fig.suptitle(title, fontsize=size_title)
-    plt.tight_layout(rect=[0, 0, 1, 1])
-    # Agregar referencia en la parte inferior del gráfico
-    fig.text(0.5, 0.01, footer, ha='center', va='center', fontsize=size_footer, color='black')
-    
-
-    # Convertir la gráfica a base64
-    tmp_file = io.BytesIO()
-    plt.savefig(tmp_file, format='png')
-    tmp_file.seek(0)
-    plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
-
-    # Mostrar la gráfica en un componente HTML
-    return html.Div([
-        html.H2(title),
-        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
-    ])
 
 def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, legend_loc, size_bar):
     # Calcular porcentajes
@@ -901,7 +832,6 @@ calculo_layout = html.Div([
     html.Div(id='output-data')
 ])
 
-
 app.title = "Generate Graph Municipality"
 
 # Callback para actualizar el contenido según la URL
@@ -1063,7 +993,8 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
             
             
             fig = go.Figure()
-
+            
+             # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
             if pathname == '/cancer':
                 df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
                 
@@ -1092,7 +1023,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 df_sc_t = generate_total(df_sc_diabetes)
                 
                 df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)    
+                df_g_t = calculate_total(df_g_t, factor, p_2)
                 df_pc_t = calculate_total(df_pc_t, factor, p_3)
                 df_sc_t = calculate_total(df_sc_t, factor, p_4)
                 
@@ -1213,8 +1144,8 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                     'Camiri': df_c_t,
                     'Gutierrez': df_g_t
                 }
-
-            if (len(selected_dataframes) == 3):
+                
+                if (len(selected_dataframes) == 3):
                     if graphic_type == 't':
                         # Generar y retornar el gráfico con los parámetros seleccionados
                         return generate_lines_total(dataframes_total[selected_dataframes[0]], dataframes_total[selected_dataframes[1]], dataframes_total[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
@@ -1243,9 +1174,8 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
             return dcc.Graph(figure=fig)
                     
         except Exception as e:
-            return html.Div(f'Error: {e}')       
-                
-        
+            return html.Div(f'Error: {e}')
+
 # Ejecutar la aplicación
 if __name__ == '__main__':
     app.run_server(debug=True)

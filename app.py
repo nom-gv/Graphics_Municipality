@@ -1035,7 +1035,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
             df_pc = calculate_gender(df3, factor, m_3, h_3)
             df_sc = calculate_gender(df4, factor, m_4, h_4)
             
-            fig = go.Figure()
+            #fig = go.Figure()
 
             if n_clicks > 0:
                 # Seleccionar los dataframes según la selección del usuario
@@ -1084,7 +1084,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                     # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
                     return html.Div("")
 
-            return dcc.Graph(figure=fig)
+            return html.Div("")
                     
         except Exception as e:
             return html.Div(f'Error: {e}')

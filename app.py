@@ -676,18 +676,6 @@ def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer
     ])
 
 
-# Función para mostrar los DataFrames en HTML
-def generate_table(dataframe, max_rows=10):
-    return html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns])] +
-
-        # Body
-        [html.Tr([
-            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
-        ]) for i in range(min(len(dataframe), max_rows))]
-    )
-
 # Define el layout de la aplicación
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -786,13 +774,13 @@ calculo_layout = html.Div([
         dcc.Input(
             id='input-titulo',
             type='text',
-            value='Tendencia'
+            value='Comparación a nivel departamental, provincial y municipal casos de X'
         ),
         html.Label("Tamaño de letra titulo: "),
         dcc.Input(
             id='input-tamaño-titulo',
             type='number',
-            value='16'
+            value='12'
         )
     ]),
     
@@ -857,8 +845,9 @@ def display_page(pathname):
             html.H2('Datos Camiri'),
             create_table(df_c_cancer),
             html.H2('Datos Gutierrez'),
-            create_table(df_g_cancer)
-        ]), calculo_layout
+            create_table(df_g_cancer),
+            calculo_layout
+        ])
     elif pathname == '/diabetes':
         df_c_diabetes, df_g_diabetes, d1, d2 = get_casos_diabetes()
         return html.Div([
@@ -866,8 +855,9 @@ def display_page(pathname):
             html.H2('Datos Camiri'),
             create_table(df_c_diabetes),
             html.H2('Datos Gutierrez'),
-            create_table(df_g_diabetes)
-        ]), calculo_layout
+            create_table(df_g_diabetes),
+            calculo_layout
+        ])
     elif pathname == '/hipertension':
         df_c_hipertension, df_g_hipertension, d1, d2 = get_casos_hipertension()
         return html.Div([
@@ -875,44 +865,49 @@ def display_page(pathname):
             html.H2('Datos Camiri'),
             create_table(df_c_hipertension),
             html.H2('Datos Gutierrez'),
-            create_table(df_g_hipertension)
-        ]), calculo_layout
+            create_table(df_g_hipertension),
+            calculo_layout
+        ])
     elif pathname == '/obesidad':
         df_c_obesidad, df_g_obesidad, d1, d2 = get_casos_obesidad()
         return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            html.H1('Recolección de datos - Análisis de Datos Obesidad'),
             html.H2('Datos Camiri'),
             create_table(df_c_obesidad),
             html.H2('Datos Gutierrez'),
-            create_table(df_g_obesidad)
-        ]), calculo_layout
+            create_table(df_g_obesidad),
+            calculo_layout
+        ])
     elif pathname == '/neumonia':
         df_c_neumonia, df_g_neumonia, d1, d2 = get_casos_neumonia()
         return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            html.H1('Recolección de datos - Análisis de Datos Neumonía'),
             html.H2('Datos Camiri'),
             create_table(df_c_neumonia),
             html.H2('Datos Gutierrez'),
-            create_table(df_g_neumonia)
-        ]), calculo_layout
+            create_table(df_g_neumonia),
+            calculo_layout
+        ])
     elif pathname == '/chagas':
         df_c_chagas, df_g_chagas, d1, d2 = get_casos_chagas()
         return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            html.H1('Recolección de datos - Análisis de Datos Chagas'),
             html.H2('Datos Camiri'),
             create_table(df_c_chagas),
             html.H2('Datos Gutierrez'),
-            create_table(df_g_chagas)
-        ]), calculo_layout
+            create_table(df_g_chagas),
+            calculo_layout
+        ])
     elif pathname == '/vih':
         df_c_vih, df_g_vih, d1, d2 = get_casos_vih()
         return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            html.H1('Recolección de datos - Análisis de Datos VIH'),
             html.H2('Datos Camiri'),
             create_table(df_c_vih),
             html.H2('Datos Gutierrez'),
-            create_table(df_g_vih)
-        ]), calculo_layout
+            create_table(df_g_vih),
+            calculo_layout
+        ])
     else:
         return html.Div([
             html.H1('Mi primera aplicación Dash en Heroku'),

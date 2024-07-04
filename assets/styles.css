@@ -71,3 +71,30 @@
         width: 70%;
     }
 }
+
+/* Estilo general para la tabla */
+.data-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Media query para pantallas pequeñas */
+@media only screen and (max-width: 700px) {
+    .data-table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .dash-table-container .dash-spreadsheet-container {
+        width: 100%;
+    }
+
+    .dash-table-container .dash-spreadsheet-inner {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .dash-table-container .dash-spreadsheet-inner table {
+        width: 100%;
+    }
+}

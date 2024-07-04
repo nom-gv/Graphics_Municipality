@@ -978,8 +978,6 @@ def display_page(pathname):
             create_table(df_g_vih),
             calculo_layout
         ])
-    elif pathname == '/nutricion':
-        
     else:
         return html.Div([
             html.H1('Mi primera aplicación Dash en Heroku'),

@@ -901,110 +901,6 @@ calculo_layout = html.Div([
     html.Div(id='output-data')
 ])
 
-calculo_layout_nutrition = html.Div([    
-    html.H1("Gráficos de Tendencia"),
-
-    html.Label('Tipo Estado Nutricional:'),
-    dcc.Dropdown(
-        id='dropdown-state-nutrition',
-        options=[
-            {'label': 'Obesidad', 'value': 'o'},
-            {'label': 'Sobrepeso', 'value': 's'},
-            {'label': 'Malnutricion', 'value': 'm'},
-        ],
-        value='o'  # Valor inicial seleccionado
-    ),
-    html.Div([
-        html.Span('Factor'),
-        dcc.Input(id='input-factor', type='number', value=10000, style={'width': '80px'})
-    ]),
-    html.Label('Grafica a mostrar:'),
-    dcc.Dropdown(
-        id='dropdown-graphic-type',
-        options=[
-            {'label': 'Totales', 'value': 't'},
-            {'label': 'Separados', 'value': 's'},
-        ],
-        value='t'  # Valor inicial seleccionado
-    ),
-    html.Label('Porcentaje o Incidencias:'),
-    dcc.Dropdown(
-        id='dropdown-type-percent',
-        options=[
-            {'label': 'Incidencias', 'value': 'Incidencia'},
-            {'label': 'Porcentajes', 'value': 'Porcentaje'},
-        ],
-        value='Incidencia'  # Valor inicial seleccionado
-    ),
-    html.Label('Seleccionar dataframes para graficar:'),
-    dcc.Dropdown(
-        id='dropdown-dataframes',
-        options=opciones_dataframes,
-        multi=True,
-        value=['Santa Cruz', 'Cordillera', 'Camiri']  # Valores iniciales seleccionados
-    ),
-    html.Div([
-        html.Label('Título del gráfico: '),
-        dcc.Input(
-            id='input-titulo',
-            type='text',
-            value='Comparación a nivel departamental, provincial y municipal casos de X'
-        ),
-        html.Label("Tamaño de letra titulo: "),
-        dcc.Input(
-            id='input-tamaño-titulo',
-            type='number',
-            value='12'
-        )
-    ]),
-    
-    html.Div([
-        html.Label('Pie de Pagina: '),
-        dcc.Input(
-            id='input-pie',
-            type='text',
-            value='Datos obtenidos de la página del SNIS'
-        ),
-        html.Label("Tamaño de letra pie: "),
-        dcc.Input(
-            id='input-tamaño-pie',
-            type='number',
-            value='10'
-        )
-    ]),
-    
-    html.Label('Ubicación de la leyenda:'),
-    dcc.Dropdown(
-        id='dropdown-legend-loc',
-        options=[
-            {'label': 'Arriba a la izquierda', 'value': 'upper left'},
-            {'label': 'Arriba a la derecha', 'value': 'upper right'},
-            {'label': 'Abajo a la izquierda', 'value': 'lower left'},
-            {'label': 'Abajo a la derecha', 'value': 'lower right'}
-        ],
-        value='upper left'  # Valor inicial seleccionado
-    ),
-    
-    html.Div([
-        html.Label('Tamaño de letra leyenda: '),
-        dcc.Input(
-            id='input-tamaño-leyenda',
-            type='number',
-            value='8',
-            style={'width': '80px'}
-        ),
-        html.Label("Tamaño de letra de Numeros Graficas: "),
-        dcc.Input(
-            id='input-tamaño-num-grafica',
-            type='number',
-            value='10',
-            style={'width': '80px'}
-        )
-    ]),
-    
-    html.Button('Generar Gráfico', id='btn-calcular-nutrition'),
-    html.Div(id='output-data')
-])
 
 app.title = "Generate Graph Municipality"
 
@@ -1083,16 +979,7 @@ def display_page(pathname):
             calculo_layout
         ])
     elif pathname == '/nutricion':
-        df_c_nutricion, df_g_nutricion, d1, d2 = get_casos_nutricion()
-        return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos VIH'),
-            html.H2('Datos Camiri'),
-            create_table(df_c_nutricion),
-            html.H2('Datos Gutierrez'),
-            create_table(df_g_nutricion),
-
-            calculo_layout_nutrition
-        ])
+        
     else:
         return html.Div([
             html.H1('Mi primera aplicación Dash en Heroku'),
@@ -1260,86 +1147,7 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
             return html.Div(f'Error: {e}')        
                 
             
-# Callback para realizar el cálculo de incidencias y porcentajes
-@app.callback(
-    Output('output-data', 'children'),
-    [
-        Input('btn-calcular-nutrition', 'n_clicks'),
-        Input('dropdown-graphic-type', 'value'),
-        Input('dropdown-type-percent', 'value'),
-        Input('dropdown-dataframes', 'value'),
-        Input('input-titulo', 'value'),
-        Input('input-tamaño-titulo', 'value'),
-        Input('input-pie', 'value'),
-        Input('input-tamaño-pie', 'value'),
-        Input('input-tamaño-leyenda', 'value'),
-        Input('input-tamaño-num-grafica', 'value'),
-        Input('dropdown-legend-loc', 'value'),
-        Input('dropdown-state-nutrition', 'value')
-    ],
-    [State('input-factor', 'value'),
-     State('url', 'pathname')]  # Capturar el pathname actual
-)
-def update_output_nutricion(n_clicks, graphic_type, type_percent, selected_dataframes, titulo, tamanio_titulo,
-                  pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, state_nutrition,
-                  factor, pathname):
-    if n_clicks:
-        try:
-            if pathname == '/nutricion':
-                p_c, p_g, p_pc, p_sc = get_poblacion_especial()
 
-                p = p_c.groupby('Año')['Total'].sum().tolist()
-                p_2 = p_g.groupby('Año')['Total'].sum().tolist()
-                p_3 = p_pc.groupby('Año')['Total'].sum().tolist()
-                p_4 = p_sc.groupby('Año')['Total'].sum().tolist()
-
-                df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad, df_c_sobrepeso, df_g_sobrepeso, df_pc_sobrepeso, df_sc_sobrepeso, df_c_bajopeso, df_g_bajopeso, df_pc_bajopeso, df_sc_bajopeso = get_casos_nutricion()
-                if state_nutrition == 'o':
-                    df_c_t = generate_total(df_c_obesidad)
-                    df_g_t = generate_total(df_g_obesidad)
-                    df_pc_t = generate_total(df_pc_obesidad)
-                    df_sc_t = generate_total(df_sc_obesidad)
-                    
-                    df_c_t = calculate_total(df_c_t, factor, p)
-                    df_g_t = calculate_total(df_g_t, factor, p_2)
-                    df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                    df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                elif state_nutrition == 's':
-                    df_c = generate_total(df_c_obesidad)
-                    df_g = generate_total(df_g_obesidad)
-                    df_pc = generate_total(df_pc_obesidad)
-                    df_sc = generate_total(df_sc_obesidad)
-                    
-                    df_c = calculate_total(df_c, factor, p)
-                    df_g = calculate_total(df_g, factor, p_2)
-                    df_pc = calculate_total(df_pc, factor, p_3)
-                    df_sc = calculate_total(df_sc, factor, p_4)
-
-                    
-                df_c.sort_values(by='Año', inplace=True)
-                df_g.sort_values(by='Año', inplace=True)
-                df_pc.sort_values(by='Año', inplace=True)
-                df_sc.sort_values(by='Año', inplace=True)
-                
-                dataframes = {
-                    'Santa Cruz': df_sc,
-                    'Cordillera': df_pc,
-                    'Camiri': df_c,
-                    'Gutierrez': df_g
-                }
-                
-                if (len(selected_dataframes) == 3):
-                    if graphic_type == 't':
-                        # Generar y retornar el gráfico con los parámetros seleccionados
-                        return generate_lines_total(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    elif graphic_type == 's':
-                        # Generar y retornar el gráfico con los parámetros seleccionados
-                        return generate_lines_comparison_pregnan(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    else:
-                        return html.Div("") 
-        
-        except Exception as e:
-            return html.Div(f'Error: {e}')  
 # Ejecutar la aplicación
 if __name__ == '__main__':
     app.run_server(debug=True)

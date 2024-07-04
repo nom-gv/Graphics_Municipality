@@ -40,7 +40,8 @@ archivos = [
     ('CasosVIH.xlsx', '1xmnFEOBzaIZa3Ah4daAVEMo4HeLCVyZK'),
     ('CasosEstadoNutricional.xlsx', '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'),
     ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
-    ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q')
+    ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'),
+    ('DatosPoblaciones.xlsx','11On6kmZq_frtfNx8Q-mc-Ei3-rVayleH')
 ]
 
 # Función para descargar todos los archivos en un hilo separado
@@ -137,6 +138,13 @@ def get_casos_consulta():
     df_pc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-PC")
     df_sc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-SC")
     return df_c_consulta, df_g_consulta, df_pc_consulta, df_sc_consulta
+
+def get_poblacion():
+    df_c_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-C")
+    df_g_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-G")
+    df_pc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-PC")
+    df_sc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-SC")
+    return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
 
 def calculate_gender(df, factor, m, h):
     # Población estimada
@@ -1004,18 +1012,27 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
     if n_clicks:
         try:
             # Convertir a listas de poblaciones
-            m = [int(m1), int(m2), int(m3), int(m4), int(m5)]
-            h = [int(h1), int(h2), int(h3), int(h4), int(h5)]
-            p = [int(m1)+int(h1), int(m2)+int(h2), int(m3)+int(h3), int(m4)+int(h4), int(m5)+int(h5)]
-            m_2 = [int(m1_2), int(m2_2), int(m3_2), int(m4_2), int(m5_2)]
-            h_2 = [int(h1_2), int(h2_2), int(h3_2), int(h4_2), int(h5_2)]
-            p_2 = [int(m1_2)+int(h1_2), int(m2_2)+int(h2_2), int(m3_2)+int(h3_2), int(m4_2)+int(h4_2), int(m5_2)+int(h5_2)]
-            m_3 = [int(m1_3), int(m2_3), int(m3_3), int(m4_3), int(m5_3)]
-            h_3 = [int(h1_3), int(h2_3), int(h3_3), int(h4_3), int(h5_3)]
-            p_3 = [int(m1_3)+int(h1_3), int(m2_3)+int(h2_3), int(m3_3)+int(h3_3), int(m4_3)+int(h4_3), int(m5_3)+int(h5_3)]
-            m_4 = [int(m1_4), int(m2_4), int(m3_4), int(m4_4), int(m5_4)]
-            h_4 = [int(h1_4), int(h2_4), int(h3_4), int(h4_4), int(h5_4)]
-            p_4 = [int(m1_4)+int(h1_4), int(m2_4)+int(h2_4), int(m3_4)+int(h3_4), int(m4_4)+int(h4_4), int(m5_4)+int(h5_4)]
+            p_c, p_g, p_pc, p_sc = get_poblacion()
+            m = p_c[p_c['Sexo'] == 'Mujer']['Total'].tolist()
+            h = p_c[p_c['Sexo'] == 'Hombre']['Total'].tolist()
+            p = p_c.groupby('Año')['Total'].sum().tolist()
+            m_2 = p_g[p_g['Sexo'] == 'Mujer']['Total'].tolist()
+            h_2 = p_g[p_g['Sexo'] == 'Hombre']['Total'].tolist()
+            p_2 = p_g.groupby('Año')['Total'].sum().tolist()
+            m_3 = p_pc[p_pc['Sexo'] == 'Mujer']['Total'].tolist()
+            h_3 = p_pc[p_pc['Sexo'] == 'Hombre']['Total'].tolist()
+            p_3 = p_pc.groupby('Año')['Total'].sum().tolist()
+            m_4 = p_sc[p_sc['Sexo'] == 'Mujer']['Total'].tolist()
+            h_4 = p_sc[p_sc['Sexo'] == 'Hombre']['Total'].tolist()
+            p_4 = p_sc.groupby('Año')['Total'].sum().tolist()
+
+            df_mujeres = p_c[p_c['Sexo'] == 'Mujer']
+            columnas_edad = ['0-9', '10-19', '20-39', '40-49', '50-59', '60+']
+            listas_edad = [df_mujeres[col].tolist() for col in columnas_edad]
+            r_m = sum(listas_edad, [])
+            df_hombres = p_c[p_c['Sexo'] == 'Hombre']
+            listas_edad = [df_hombres[col].tolist() for col in columnas_edad]
+            r_h = sum(listas_edad, [])
             
             
             if tamanio_titulo != None:
@@ -1189,83 +1206,31 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                     'Gutierrez': df_g_t
                 }
                 
-                if graphic_type == 't':
-                    selected_dfs = {key: dataframes_total[key] for key in selected_dataframes}
-                    # Verificar si todos los dataframes seleccionados están disponibles
-                    if (len(selected_dataframes) == 3):
+                if (len(selected_dataframes) == 3):
+                    if graphic_type == 't':
                         # Generar y retornar el gráfico con los parámetros seleccionados
                         return generate_lines_total(dataframes_total[selected_dataframes[0]], dataframes_total[selected_dataframes[1]], dataframes_total[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    else:
-                        # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
-                        return html.Div("")
-                elif graphic_type == 's1':
-                    selected_dfs = {key: dataframes[key] for key in selected_dataframes}
-                    # Verificar si todos los dataframes seleccionados están disponibles
-                    if (len(selected_dataframes) == 3):
+                    elif graphic_type == 's1':
                         # Generar y retornar el gráfico con los parámetros seleccionados
                         return generate_lines_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    else:
-                            # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
-                        return html.Div("")
-                elif graphic_type == 's2':
-                    selected_dfs = {key: dataframes[key] for key in selected_dataframes}
-                    # Verificar si todos los dataframes seleccionados están disponibles
-                    if (len(selected_dataframes) == 3):
+                    elif graphic_type == 's2':
                         # Generar y retornar el gráfico con los parámetros seleccionados
                         return generate_lines_separate_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    else:
-                            # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
-                        return html.Div("")
-                elif graphic_type == 's3':
-                    selected_dfs = {key: dataframes[key] for key in selected_dataframes}
-                    # Verificar si todos los dataframes seleccionados están disponibles
-                    if (len(selected_dataframes) == 3):
-                        # Generar y retornar el gráfico con los parámetros seleccionados
+                    elif graphic_type == 's3':
                         return generate_lines_comparison_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
                     else:
-                            # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
-                        return html.Div("")
-                elif graphic_type == 'e':
-                    selected_dfs = {key: dataframes[key] for key in selected_dataframes}
-                    h_c = [4477, 4468, 4454, 4425, 4390, 
-                           4144, 4158, 4178, 4198, 4216, 
-                           5613, 5662, 5696, 5730, 5758, 
-                           1978, 2023, 2068, 2111, 2157,
-                           1538, 1580, 1624, 1670, 1716, 
-                           2141, 2224, 2309, 2398, 2487]
-                    m_c = [4245, 4323, 4211, 4181, 4140, 
-                           4013, 4020, 4029, 4043, 4057, 
-                           6219, 6280, 6333, 6371, 6403, 
-                           2335, 2394, 2453, 2511, 2571,
-                           1799, 1849, 1901, 1955, 2011, 
-                           2697, 2802, 2908, 3020, 3133]
-                    h_g = [2069, 2067, 2060, 2049, 2037,
-                           1772, 1782, 1792, 1800, 1811, 
-                           1973, 1992, 2009, 2027, 2040, 
-                           735, 751, 769, 787, 802, 
-                           480, 495, 509, 523, 539, 
-                           690, 716, 744, 773, 801]
-                    m_g = [2036, 2035, 2027, 2015, 2000,
-                           1699, 1705, 1713, 1723, 1732, 
-                           1915, 1935, 1955, 1973, 1987, 
-                           701, 720, 739, 758, 777, 
-                           474, 488, 502, 518, 533, 
-                           867, 903, 940, 975, 1015]
-                    # Verificar si todos los dataframes seleccionados están disponibles
-                    if (len(selected_dataframes) == 1 and selected_dataframes[0] == 'Camiri'):
-                        # Generar y retornar el gráfico con los parámetros seleccionados
+                        return html.Div("") 
+                elif (len(selected_dataframes) == 1):
+                    if graphic_type == 'e':
                         if pathname == '/neumonia' or pathname == '/chagas':
-                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_c, h_c, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
+                            return plot_age_percentages(dataframes[selected_dataframes[0]], r_m, r_h, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
                         else:
-                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_c, h_c, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)
-                    elif (len(selected_dataframes) == 1 and selected_dataframes[0] == 'Gutierrez'):
-                        if pathname == '/neumonia':
-                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_g, h_g, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
-                        else:
-                            return plot_age_percentages(dataframes[selected_dataframes[0]], m_g, h_g, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)
+                            return plot_age_percentages(dataframes[selected_dataframes[0]], r_m, r_h, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)
                     else:
-                            # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
                         return html.Div("")
+                else:
+                    # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
+                    return html.Div("")
 
             return dcc.Graph(figure=fig)
                     

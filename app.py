@@ -1,5 +1,5 @@
 import dash
-import gdown
+import requests
 import base64
 import io
 import threading
@@ -14,18 +14,29 @@ from dash import Input, Output, State
 import plotly.graph_objs as go
 
 # Función para descargar y guardar archivos desde Google Drive
+# Función para descargar y guardar archivos desde Google Drive usando requests
 def download_and_save(nombre, file_id):
     try:
-        # Descargar el archivo desde Google Drive
-        output_file = nombre
+        # Construir la URL de descarga
         url = f'https://drive.google.com/uc?export=download&id={file_id}'
-        gdown.download(url, output_file, quiet=False)
-
-        # Leer el archivo descargado
-        df = pd.read_excel(output_file)
-
-        return df
-
+        
+        # Realizar la solicitud GET
+        response = requests.get(url)
+        
+        # Verificar si la descarga fue exitosa (código 200)
+        if response.status_code == 200:
+            # Guardar el contenido de la respuesta en un archivo
+            with open(nombre, 'wb') as f:
+                f.write(response.content)
+            
+            # Leer el archivo descargado con pandas
+            df = pd.read_excel(nombre)
+            return df
+        
+        else:
+            print(f'Error al descargar el archivo {nombre}: Código de estado {response.status_code}')
+            return None
+    
     except Exception as e:
         print(f'Error al descargar y guardar el archivo {nombre}: {str(e)}')
         return None

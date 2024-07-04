@@ -11,6 +11,7 @@ from dash import dcc
 from dash import html
 from dash import Input, Output, State
 import plotly.graph_objs as go
+import dash_table
 
 # Función para descargar y guardar archivos desde Google Drive
 def download_and_save(nombre, file_id):
@@ -712,6 +713,33 @@ app.layout = html.Div([
     html.Div(id='btn-calcular', style={'display': 'none'}),  # Div oculto para generar el botón
 ], className='container')
 
+# Función para crear una tabla Dash DataTable
+def create_table(dataframe):
+    return dash_table.DataTable(
+        id='table',
+        columns=[{"name": i, "id": i} for i in dataframe.columns],
+        data=dataframe.to_dict('records'),
+        style_data_conditional=[
+            {
+                'if': {
+                    'filter_query': '{Sexo} = "Hombre"',
+                    'column_id': 'Sexo'
+                },
+                'backgroundColor': '#CDE7FF',
+                'color': 'white'
+            },
+            {
+                'if': {
+                    'filter_query': '{Sexo} = "Mujer"',
+                    'column_id': 'Sexo'
+                },
+                'backgroundColor': '#FFE5D1',
+                'color': 'white'
+            },
+        ],
+        style_cell={'textAlign': 'center'}
+    )
+
 # Definir opciones de dataframes
 opciones_dataframes = [
     {'label': 'Camiri', 'value': 'Camiri'},
@@ -721,136 +749,12 @@ opciones_dataframes = [
 ]
 
 # Define el layout de la página de cálculo
-calculo_layout = html.Div([
-    html.Div([
-        html.Div([
-            html.H4('Población Camiri'),
-            html.Div([
-                html.P('Mujeres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-m1', type='number', value=21308, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-m2', type='number', value=21577, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-m3', type='number', value=21835, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-m4', type='number', value=22081, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-m5', type='number', value=22315, style={'width': '80px'}),
-            ]),
-            html.Div([
-                html.P('Hombres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-h1', type='number', value=19891, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-h2', type='number', value=20115, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-h3', type='number', value=20329, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-h4', type='number', value=20532, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-h5', type='number', value=20724, style={'width': '80px'}),
-            ]),
-        ], className='population-section'),
-        html.Div([
-            html.H4('Población Gutierrez'),
-            html.Div([
-                html.P('Mujeres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-m1-2', type='number', value=7692, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-m2-2', type='number', value=7786, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-m3-2', type='number', value=7876, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-m4-2', type='number', value=7962, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-m5-2', type='number', value=8044, style={'width': '80px'}),
-            ]),
-            html.Div([
-                html.P('Hombres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-h1-2', type='number', value=7719, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-h2-2', type='number', value=7803, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-h3-2', type='number', value=7883, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-h4-2', type='number', value=7959, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-h5-2', type='number', value=8030, style={'width': '80px'}),
-
-            ]),
-        ], className='population-section'),
-    ], className='substrac-section'),
-    
-    html.Div([
-        html.Div([
-            html.H4('Población Cordillera'),
-            html.Div([
-                html.P('Mujeres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-m1-3', type='number', value=67693, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-m2-3', type='number', value=68365, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-m3-3', type='number', value=69000, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-m4-3', type='number', value=69595, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-m5-3', type='number', value=70149, style={'width': '80px'}),
-            ]),
-            html.Div([
-                html.P('Hombres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-h1-3', type='number', value=70822, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-h2-3', type='number', value=71422, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-h3-3', type='number', value=71981, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-h4-3', type='number', value=72501, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-h5-3', type='number', value=72980, style={'width': '80px'}),
-            ]),
-        ], className='population-section'),
-        html.Div([
-            html.H4('Población Santa Cruz'),
-            html.Div([
-                html.P('Mujeres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-m1-4', type='number', value=1599058, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-m2-4', type='number', value=1631632, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-m3-4', type='number', value=1663929, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-m4-4', type='number', value=1695862, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-m5-4', type='number', value=1727403, style={'width': '80px'}),
-            ]),
-            html.Div([
-                html.P('Hombres: '),
-                html.Label('2019:'),
-                dcc.Input(id='input-h1-4', type='number', value=1638165, style={'width': '80px'}),
-                html.Label('2020:'),
-                dcc.Input(id='input-h2-4', type='number', value=1668971, style={'width': '80px'}),
-                html.Label('2021:'),
-                dcc.Input(id='input-h3-4', type='number', value=1699448, style={'width': '80px'}),
-                html.Label('2022:'),
-                dcc.Input(id='input-h4-4', type='number', value=1729537, style={'width': '80px'}),
-                html.Label('2023:'),
-                dcc.Input(id='input-h5-4', type='number', value=1759221, style={'width': '80px'}),
-            ]),
-        ], className='population-section'),
-    ], className='substrac-section'),
-    
+calculo_layout = html.Div([    
+    html.H1("Gráficos de Tendencia"),
     html.Div([
         html.Span('Factor'),
         dcc.Input(id='input-factor', type='number', value=10000, style={'width': '80px'})
     ]),
-    
-    html.H1("Gráficos de Tendencia"),
     html.Label('Grafica a mostrar:'),
     dcc.Dropdown(
         id='dropdown-graphic-type',
@@ -948,15 +852,59 @@ app.title = "Generate Graph Municipality"
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
-    if pathname == '/cancer' or pathname == '/diabetes' or pathname == '/hipertension' or pathname == '/obesidad' or pathname == '/neumonia' or pathname == '/chagas' or pathname == '/vih':
-        #df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
+    if pathname == '/cancer':
+        df_c_cancer, df_g_cancer = get_casos_cancer()
         return html.Div([
-            html.H1('Recolección de datos - Análisis de Datos '+ pathname[1:]),
+            html.H1('Recolección de datos - Análisis de Datos Cancer'),
+            create_table(df_c_cancer),
+            create_table(df_g_cancer)
+        ]), calculo_layout
+    elif pathname == '/diabetes':
+        df_c_diabetes, df_g_diabetes = get_casos_diabetes()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Diabetes'),
+            create_table(df_c_diabetes),
+            create_table(df_g_diabetes)
+        ]), calculo_layout
+    elif pathname == '/hipertension':
+        df_c_hipertension, df_g_hipertension = get_casos_hipertension()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            create_table(df_c_hipertension),
+            create_table(df_g_hipertension)
+        ]), calculo_layout
+    elif pathname == '/obesidad':
+        df_c_obesidad, df_g_obesidad = get_casos_obesidad()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            create_table(df_c_obesidad),
+            create_table(df_g_obesidad)
+        ]), calculo_layout
+    elif pathname == '/neumonia':
+        df_c_neumonia, df_g_neumonia = get_casos_neumonia()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            create_table(df_c_neumonia),
+            create_table(df_g_neumonia)
+        ]), calculo_layout
+    elif pathname == '/chagas':
+        df_c_chagas, df_g_chagas = get_casos_chagas()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            create_table(df_c_chagas),
+            create_table(df_g_chagas)
+        ]), calculo_layout
+    elif pathname == '/vih':
+        df_c_vih, df_g_vih = get_casos_vih()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Hipertensión Arterial'),
+            create_table(df_c_vih),
+            create_table(df_g_vih)
         ]), calculo_layout
     else:
         return html.Div([
             html.H1('Mi primera aplicación Dash en Heroku'),
-            html.P('Hola mundo'+pathname),
+            html.P('Hola mundo' + pathname),
             dcc.Graph(
                 id='example-graph',
                 figure={
@@ -970,10 +918,6 @@ def display_page(pathname):
                 }
             )
         ])
-
-# Ejecuta la aplicación
-#if __name__ == '__main__':
-#    app.run_server(debug=True)
 
 # Callback para realizar el cálculo de incidencias y porcentajes
 @app.callback(
@@ -991,23 +935,11 @@ def display_page(pathname):
         Input('input-tamaño-num-grafica', 'value'),
         Input('dropdown-legend-loc', 'value')
     ],
-    [State('input-m1', 'value'), State('input-m2', 'value'), State('input-m3', 'value'), State('input-m4', 'value'), State('input-m5', 'value'),
-     State('input-h1', 'value'), State('input-h2', 'value'), State('input-h3', 'value'), State('input-h4', 'value'), State('input-h5', 'value'),
-     State('input-m1-2', 'value'), State('input-m2-2', 'value'), State('input-m3-2', 'value'), State('input-m4-2', 'value'), State('input-m5-2', 'value'),
-     State('input-h1-2', 'value'), State('input-h2-2', 'value'), State('input-h3-2', 'value'), State('input-h4-2', 'value'), State('input-h5-2', 'value'),
-     State('input-m1-3', 'value'), State('input-m2-3', 'value'), State('input-m3-3', 'value'), State('input-m4-3', 'value'), State('input-m5-3', 'value'),
-     State('input-h1-3', 'value'), State('input-h2-3', 'value'), State('input-h3-3', 'value'), State('input-h4-3', 'value'), State('input-h5-3', 'value'),
-     State('input-m1-4', 'value'), State('input-m2-4', 'value'), State('input-m3-4', 'value'), State('input-m4-4', 'value'), State('input-m5-4', 'value'),
-     State('input-h1-4', 'value'), State('input-h2-4', 'value'), State('input-h3-4', 'value'), State('input-h4-4', 'value'), State('input-h5-4', 'value'),
-     State('input-factor', 'value'),
+    [State('input-factor', 'value'),
      State('url', 'pathname')]  # Capturar el pathname actual
 )
 def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, titulo, 
                   tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 
-                  m1, m2, m3, m4, m5, h1, h2, h3, h4, h5,
-                  m1_2, m2_2, m3_2, m4_2, m5_2, h1_2, h2_2, h3_2, h4_2, h5_2,
-                  m1_3, m2_3, m3_3, m4_3, m5_3, h1_3, h2_3, h3_3, h4_3, h5_3,
-                  m1_4, m2_4, m3_4, m4_4, m5_4, h1_4, h2_4, h3_4, h4_4, h5_4,
                   factor, pathname):
     if n_clicks:
         try:

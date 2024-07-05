@@ -53,7 +53,8 @@ archivos = [
     ('CasosEstadoNutricional.xlsx', '1G8k9bqzJop0dSgFjigeVrzVQiuHuUFUp'),
     ('CasosEmbarazoAdolescente.xlsx', '1WGjRPOdiKjbblojvO96WpkfSITvbpvsH'),
     ('CasosConsultaExterna.xlsx', '1iA8HOY1nCGd62dqL1RU3MMgitXKT1a4q'),
-    ('DatosPoblaciones.xlsx','11On6kmZq_frtfNx8Q-mc-Ei3-rVayleH')
+    ('DatosPoblaciones.xlsx','11On6kmZq_frtfNx8Q-mc-Ei3-rVayleH'),
+    ('DatosEspeciales.xlsx','1NoaMbxqsDrw3gtya91fnE2TPZo54Dxf6')
 ]
 
 # Función para descargar todos los archivos en un hilo separado
@@ -158,6 +159,13 @@ def get_poblacion():
     df_sc_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-SC")
     return df_c_poblacion, df_g_poblacion, df_pc_poblacion, df_sc_poblacion
 
+def get_poblacion_especiales():
+    df_c_especiales = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-C")
+    df_g_especiales = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-G")
+    df_pc_especiales = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-PC")
+    df_sc_especiales = pd.read_excel('DatosEspeciales.xlsx', sheet_name="ESPECIALES-SC")
+    return df_c_especiales, df_g_especiales, df_pc_especiales, df_sc_especiales
+
 def calculate_gender(df, factor, m, h):
     # Población estimada
     total_mujeres = {2019: m[0], 2020: m[1], 2021: m[2], 2022: m[3], 2023: m[4]}
@@ -190,7 +198,7 @@ def generate_total(df):
     df_total = df.drop(columns=['Sexo']).reset_index()
     return df_total
 
-def calculate_total(df, factor, p):
+def calculate_total(df, factor, p, column):
     poblacion_estimada = {
         2019: p[0],
         2020: p[1],
@@ -198,12 +206,13 @@ def calculate_total(df, factor, p):
         2022: p[3],
         2023: p[4]
     }
-    df['Incidencia'] = (((df['Total']/df['Año'].map(poblacion_estimada)) * factor).round(0)).astype(int)
-    suma_total = df['Total'].sum()
+    df['Incidencia'] = (((df[column]/df['Año'].map(poblacion_estimada)) * factor).round(0)).astype(int)
+    suma_total = df[column].sum()
     suma_total = suma_total if suma_total != 0 else 1
-    df['Porcentaje'] = (((df['Total']/suma_total)) * 100).round(2)
+    df['Porcentaje'] = (((df[column]/suma_total)) * 100).round(2)
     
     return df
+    
 
 def generate_lines_total(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
     colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
@@ -336,21 +345,21 @@ def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, siz
     fig, ax = plt.subplots(2, 3, figsize=(14, 8), sharey=True)
 
     # Gráfica para hombres - Departamento
-    ax[0, 0].plot(df3[df3['Sexo'] == 'Hombre'][x_column], df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[5], marker='o', linestyle='-', label=labels[2])
+    ax[0, 0].plot(df3[df3['Sexo'] == 'Hombre'][x_column], df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[0], marker='o', linestyle='-', label=labels[2])
     ax[0, 0].set_xlabel(x_column)
     ax[0, 0].set_title(f'Tendencia Municipal - {labels[2]}')
     ax[0, 0].legend(loc=legend_loc, fontsize=size_legend)
     ax[0, 0].set_xticks(años)
 
     # Gráfica para hombres - Provincia
-    ax[0, 1].plot(df2[df2['Sexo'] == 'Hombre'][x_column], df2[df2['Sexo'] == 'Hombre'][y_column], color=colors[6], marker='o', linestyle='-', label=labels[1])
+    ax[0, 1].plot(df2[df2['Sexo'] == 'Hombre'][x_column], df2[df2['Sexo'] == 'Hombre'][y_column], color=colors[1], marker='o', linestyle='-', label=labels[1])
     ax[0, 1].set_xlabel(x_column)
     ax[0, 1].set_title(f'Tendencia Provincial - {labels[1]}')
     ax[0, 1].legend(loc=legend_loc, fontsize=size_legend)
     ax[0, 1].set_xticks(años)
 
     # Gráfica para hombres - Municipio
-    ax[0, 2].plot(df1[df1['Sexo'] == 'Hombre'][x_column], df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[7], marker='o', linestyle='-', label=labels[0])
+    ax[0, 2].plot(df1[df1['Sexo'] == 'Hombre'][x_column], df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[2], marker='o', linestyle='-', label=labels[0])
     ax[0, 2].set_xlabel(x_column)
     ax[0, 2].set_title(f'Tendencia Departamental - {labels[0]}')
     ax[0, 2].legend(loc=legend_loc, fontsize=size_legend)
@@ -443,6 +452,70 @@ def generate_lines_separate_gender(df1, df2, df3, x_column, y_column, title, siz
         html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
     ])
 
+def generate_lines_separate_nutricion(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
+    años = sorted(df1[x_column].unique())
+    
+    colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
+
+    fig, ax = plt.subplots(1, 3, figsize=(14, 5), sharey=True)
+
+    # Gráfica para hombres - Departamento
+    ax[0].plot(df3[x_column], df3[y_column], color=colors[5], marker='o', linestyle='-', label=labels[2])
+    ax[0].set_xlabel(x_column)
+    ax[0].set_title(f'Tendencia Municipal - {labels[2]}')
+    ax[0].legend(loc=legend_loc, fontsize=size_legend)
+    ax[0].set_xticks(años)
+
+    # Gráfica para hombres - Provincia
+    ax[1].plot(df2[x_column], df2[y_column], color=colors[6], marker='o', linestyle='-', label=labels[1])
+    ax[1].set_xlabel(x_column)
+    ax[1].set_title(f'Tendencia Provincial - {labels[1]}')
+    ax[1].legend(loc=legend_loc, fontsize=size_legend)
+    ax[1].set_xticks(años)
+
+    # Gráfica para hombres - Municipio
+    ax[2].plot(df1[x_column], df1[y_column], color=colors[7], marker='o', linestyle='-', label=labels[0])
+    ax[2].set_xlabel(x_column)
+    ax[2].set_title(f'Tendencia Departamental - {labels[0]}')
+    ax[2].legend(loc=legend_loc, fontsize=size_legend)
+    ax[2].set_xticks(años)
+
+    if y_column == 'Incidencia':
+        for x, y in zip(df3[x_column], df3[y_column]):
+            ax[0].text(x, y, f"{y:.0f}", ha='center', va='bottom', fontsize=size_graph, color='black')
+            
+        for x, y in zip(df2[x_column], df2[y_column]):
+            ax[1].text(x, y, f"{y:.0f}", ha='center', va='bottom', fontsize=size_graph, color='black')
+        
+        for x, y in zip(df1[x_column], df1[y_column]):
+            ax[2].text(x, y, f"{y:.0f}", ha='center', va='bottom', fontsize=size_graph, color='black')
+    else:
+        for x, y in zip(df3[x_column], df3[y_column]):
+            ax[0].text(x, y, f"{y:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+        
+        for x, y in zip(df2[x_column], df2[y_column]):
+            ax[1].text(x, y, f"{y:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+            
+        for x, y in zip(df1[x_column], df1[y_column]):
+            ax[2].text(x, y, f"{y:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+            
+    fig.suptitle(title, fontsize=size_title)
+    plt.tight_layout(rect=[0, 0, 1, 1])
+    # Agregar referencia en la parte inferior del gráfico
+    fig.text(0.5, 0.01, footer, ha='center', va='center', fontsize=size_footer, color='black')
+
+    # Convertir la gráfica a base64
+    tmp_file = io.BytesIO()
+    plt.savefig(tmp_file, format='png')
+    tmp_file.seek(0)
+    plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
+
+    # Mostrar la gráfica en un componente HTML
+    return html.Div([
+        html.H2(title),
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+    ])
+
 def generate_lines_comparison_gender(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
     años = sorted(df1[x_column].unique())
     colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
@@ -522,6 +595,7 @@ def generate_lines_comparison_gender(df1, df2, df3, x_column, y_column, title, s
         html.H2(title),
         html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
     ])
+
 
 
 def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, legend_loc, size_bar):
@@ -689,7 +763,7 @@ def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer
 
 # Define el layout de la aplicación
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
+    dcc.Location(id='url', refresh=True),
     html.Div([
         html.H2("Menú"),
         html.Ul([
@@ -715,7 +789,7 @@ app.layout = html.Div([
 # Función para crear una tabla Dash DataTable
 def create_table(dataframe):
     return dash_table.DataTable(
-        id='table',
+        #id='table',
         columns=[{"name": i, "id": i} for i in dataframe.columns],
         data=dataframe.to_dict('records'),
         style_data_conditional=[
@@ -746,7 +820,7 @@ opciones_dataframes = [
 ]
 
 # Define el layout de la página de cálculo
-calculo_layout = html.Div([    
+calculo_layout = html.Div([ 
     html.H1("Gráficos de Tendencia"),
     html.Div([
         html.Span('Factor'),
@@ -843,6 +917,111 @@ calculo_layout = html.Div([
     html.Div(id='output-data')
 ])
 
+# Define el layout de la página de cálculo
+calculo_layout_nutricion = html.Div([    
+    html.H1("Gráficos de Tendencia"),
+    html.Div([
+        html.Span('Factor'),
+        dcc.Input(id='input-factor', type='number', value=10000, style={'width': '80px'})
+    ]),
+    html.Label('Estado Nutricional:'),
+    dcc.Dropdown(
+        id='dropdown-type-nutrition',
+        options=[
+            {'label': 'Obesidad', 'value': 'o'},
+            {'label': 'Sobrepeso', 'value': 's'},
+            {'label': 'Desnutricion', 'value': 'd'},
+        ],
+        value='o'  # Valor inicial seleccionado
+    ),
+    html.Label('Grafica a mostrar:'),
+    dcc.Dropdown(
+        id='dropdown-graphic-type',
+        options=[
+            {'label': 'Totales Juntos', 'value': 'tj'},
+            {'label': 'Totales Separados', 'value': 'ts'},
+        ],
+        value='tj'  # Valor inicial seleccionado
+    ),
+    html.Label('Porcentaje o Incidencias:'),
+    dcc.Dropdown(
+        id='dropdown-type-percent',
+        options=[
+            {'label': 'Incidencias', 'value': 'Incidencia'},
+            {'label': 'Porcentajes', 'value': 'Porcentaje'},
+        ],
+        value='Incidencia'  # Valor inicial seleccionado
+    ),
+    html.Label('Seleccionar dataframes para graficar:'),
+    dcc.Dropdown(
+        id='dropdown-dataframes',
+        options=opciones_dataframes,
+        multi=True,
+        value=['Santa Cruz', 'Cordillera', 'Camiri']  # Valores iniciales seleccionados
+    ),
+    html.Div([
+        html.Label('Título del gráfico: '),
+        dcc.Input(
+            id='input-titulo',
+            type='text',
+            value='Comparación a nivel departamental, provincial y municipal casos de X'
+        ),
+        html.Label("Tamaño de letra titulo: "),
+        dcc.Input(
+            id='input-tamaño-titulo',
+            type='number',
+            value='12'
+        )
+    ]),
+    
+    html.Div([
+        html.Label('Pie de Pagina: '),
+        dcc.Input(
+            id='input-pie',
+            type='text',
+            value='Datos obtenidos de la página del SNIS'
+        ),
+        html.Label("Tamaño de letra pie: "),
+        dcc.Input(
+            id='input-tamaño-pie',
+            type='number',
+            value='10'
+        )
+    ]),
+    
+    html.Label('Ubicación de la leyenda:'),
+    dcc.Dropdown(
+        id='dropdown-legend-loc',
+        options=[
+            {'label': 'Arriba a la izquierda', 'value': 'upper left'},
+            {'label': 'Arriba a la derecha', 'value': 'upper right'},
+            {'label': 'Abajo a la izquierda', 'value': 'lower left'},
+            {'label': 'Abajo a la derecha', 'value': 'lower right'}
+        ],
+        value='upper left'  # Valor inicial seleccionado
+    ),
+    
+    html.Div([
+        html.Label('Tamaño de letra leyenda: '),
+        dcc.Input(
+            id='input-tamaño-leyenda',
+            type='number',
+            value='8',
+            style={'width': '80px'}
+        ),
+        html.Label("Tamaño de letra de Numeros Graficas: "),
+        dcc.Input(
+            id='input-tamaño-num-grafica',
+            type='number',
+            value='10',
+            style={'width': '80px'}
+        )
+    ]),
+    
+    html.Button('Generar Gráfico', id='btn-calcular-nutricion'),
+    html.Div(id='output-data-nutricion')
+])
+
 app.title = "Generate Graph Municipality"
 
 # Callback para actualizar el contenido según la URL
@@ -918,6 +1097,26 @@ def display_page(pathname):
             html.H2('Datos Gutierrez'),
             create_table(df_g_vih),
             calculo_layout
+        ])
+    elif pathname == '/nutricion':
+        df_c_o, df_g_o, d1, d2, df_c_s, df_g_s, d3, d4, df_c_d, df_g_d, d5, d6 = get_casos_nutricion()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Nutricion'),
+            html.H2('Datos Camiri'),
+            html.H3('Obesidad'),
+            create_table(df_c_o),
+            html.H3('Sobrepeso'),
+            create_table(df_c_s),
+            html.H3('Desnutricion'),
+            create_table(df_c_d),
+            html.H2('Datos Gutierrez'),
+            html.H3('Obesidad'),
+            create_table(df_g_o),
+            html.H3('Sobrepeso'),
+            create_table(df_g_s),
+            html.H3('Desnutricion'),
+            create_table(df_g_d),
+            calculo_layout_nutricion
         ])
     else:
         return html.Div([
@@ -1003,187 +1202,290 @@ def update_output(n_clicks, graphic_type, type_percent, selected_dataframes, tit
                 tamanio_num_grafica = 10
             
             
+            #fig = go.Figure()
+            
+            if pathname != '/nutricion':
+             # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
+                if pathname == '/cancer':
+                    df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
+                    
+                    df_c_t = generate_total(df_c_cancer)
+                    df_g_t = generate_total(df_g_cancer)
+                    df_pc_t = generate_total(df_pc_cancer)
+                    df_sc_t = generate_total(df_sc_cancer)
+                    
+                    df_c_t = calculate_total(df_c_t, factor, p, 'Total')
+                    df_g_t = calculate_total(df_g_t, factor, p_2, 'Total')
+                    df_pc_t = calculate_total(df_pc_t, factor, p_3, 'Total')
+                    df_sc_t = calculate_total(df_sc_t, factor, p_4, 'Total')
+                    
+                    df_c = calculate_gender(df_c_cancer, factor, m, h)
+                    df_g = calculate_gender(df_g_cancer, factor, m_2, h_2)
+                    df_pc = calculate_gender(df_pc_cancer, factor, m_3, h_3)
+                    df_sc = calculate_gender(df_sc_cancer, factor, m_4, h_4)
+                
+                        
+                elif pathname == '/diabetes':
+                    df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
+                    
+                    df_c_t = generate_total(df_c_diabetes)
+                    df_g_t = generate_total(df_g_diabetes)
+                    df_pc_t = generate_total(df_pc_diabetes)
+                    df_sc_t = generate_total(df_sc_diabetes)
+                    
+                    df_c_t = calculate_total(df_c_t, factor, p, 'Total')
+                    df_g_t = calculate_total(df_g_t, factor, p_2, 'Total')
+                    df_pc_t = calculate_total(df_pc_t, factor, p_3, 'Total')
+                    df_sc_t = calculate_total(df_sc_t, factor, p_4, 'Total')
+                    
+                    df_c = calculate_gender(df_c_diabetes, factor, m, h)
+                    df_g = calculate_gender(df_g_diabetes, factor, m_2, h_2)
+                    df_pc = calculate_gender(df_pc_diabetes, factor, m_3, h_3)
+                    df_sc = calculate_gender(df_sc_diabetes, factor, m_4, h_4)
+                    
+                    print(factor, p)
+                elif pathname == '/hipertension':
+                    df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension = get_casos_hipertension()
+                    
+                    df_c_t = generate_total(df_c_hipertension)
+                    df_g_t = generate_total(df_g_hipertension)
+                    df_pc_t = generate_total(df_pc_hipertension)
+                    df_sc_t = generate_total(df_sc_hipertension)
+                    
+                    df_c_t = calculate_total(df_c_t, factor, p, 'Total')
+                    df_g_t = calculate_total(df_g_t, factor, p_2, 'Total')
+                    df_pc_t = calculate_total(df_pc_t, factor, p_3, 'Total')
+                    df_sc_t = calculate_total(df_sc_t, factor, p_4, 'Total')
+                    
+                    df_c = calculate_gender(df_c_hipertension, factor, m, h)
+                    df_g = calculate_gender(df_g_hipertension, factor, m_2, h_2)
+                    df_pc = calculate_gender(df_pc_hipertension, factor, m_3, h_3)
+                    df_sc = calculate_gender(df_sc_hipertension, factor, m_4, h_4)
+                    
+                elif pathname == '/obesidad':
+                    df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad = get_casos_obesidad()
+                    
+                    df_c_t = generate_total(df_c_obesidad)
+                    df_g_t = generate_total(df_g_obesidad)
+                    df_pc_t = generate_total(df_pc_obesidad)
+                    df_sc_t = generate_total(df_sc_obesidad)
+                    
+                    df_c_t = calculate_total(df_c_t, factor, p, 'Total')
+                    df_g_t = calculate_total(df_g_t, factor, p_2, 'Total')
+                    df_pc_t = calculate_total(df_pc_t, factor, p_3, 'Total')
+                    df_sc_t = calculate_total(df_sc_t, factor, p_4, 'Total')
+                    
+                    df_c = calculate_gender(df_c_obesidad, factor, m, h)
+                    df_g = calculate_gender(df_g_obesidad, factor, m_2, h_2)
+                    df_pc = calculate_gender(df_pc_obesidad, factor, m_3, h_3)
+                    df_sc = calculate_gender(df_sc_obesidad, factor, m_4, h_4)
+                    
+                elif pathname == '/neumonia':
+                    df_c_neumonia, df_g_neumonia, df_pc_neumonia, df_sc_neumonia = get_casos_neumonia()
+                    
+                    df_c_t = generate_total(df_c_neumonia)
+                    df_g_t = generate_total(df_g_neumonia)
+                    df_pc_t = generate_total(df_pc_neumonia)
+                    df_sc_t = generate_total(df_sc_neumonia)
+                    
+                    df_c_t = calculate_total(df_c_t, factor, p, 'Total')
+                    df_g_t = calculate_total(df_g_t, factor, p_2, 'Total')
+                    df_pc_t = calculate_total(df_pc_t, factor, p_3, 'Total')
+                    df_sc_t = calculate_total(df_sc_t, factor, p_4, 'Total')
+                    
+                    df_c = calculate_gender(df_c_neumonia, factor, m, h)
+                    df_g = calculate_gender(df_g_neumonia, factor, m_2, h_2)
+                    df_pc = calculate_gender(df_pc_neumonia, factor, m_3, h_3)
+                    df_sc = calculate_gender(df_sc_neumonia, factor, m_4, h_4)
+                    
+                elif pathname == '/chagas':
+                    df_c_chagas, df_g_chagas, df_pc_chagas, df_sc_chagas = get_casos_neumonia()
+                    
+                    df_c_t = generate_total(df_c_chagas)
+                    df_g_t = generate_total(df_g_chagas)
+                    df_pc_t = generate_total(df_pc_chagas)
+                    df_sc_t = generate_total(df_sc_chagas)
+                    
+                    df_c_t = calculate_total(df_c_t, factor, p, 'Total')
+                    df_g_t = calculate_total(df_g_t, factor, p_2, 'Total')
+                    df_pc_t = calculate_total(df_pc_t, factor, p_3, 'Total')
+                    df_sc_t = calculate_total(df_sc_t, factor, p_4, 'Total')
+                    
+                    df_c = calculate_gender(df_c_chagas, factor, m, h)
+                    df_g = calculate_gender(df_g_chagas, factor, m_2, h_2)
+                    df_pc = calculate_gender(df_pc_chagas, factor, m_3, h_3)
+                    df_sc = calculate_gender(df_sc_chagas, factor, m_4, h_4)
+                    
+                elif pathname == '/vih':
+                    df_c_vih, df_g_vih, df_pc_vih, df_sc_vih = get_casos_vih()
+                    
+                    df_c_t = generate_total(df_c_vih)
+                    df_g_t = generate_total(df_g_vih)
+                    df_pc_t = generate_total(df_pc_vih)
+                    df_sc_t = generate_total(df_sc_vih)
+                    
+                    df_c_t = calculate_total(df_c_t, factor, p, 'Total')
+                    df_g_t = calculate_total(df_g_t, factor, p_2, 'Total')
+                    df_pc_t = calculate_total(df_pc_t, factor, p_3, 'Total')
+                    df_sc_t = calculate_total(df_sc_t, factor, p_4, 'Total')
+                    
+                    df_c = calculate_gender(df_c_vih, factor, m, h)
+                    df_g = calculate_gender(df_g_vih, factor, m_2, h_2)
+                    df_pc = calculate_gender(df_pc_vih, factor, m_3, h_3)
+                    df_sc = calculate_gender(df_sc_vih, factor, m_4, h_4)
+                    
+                
+                if n_clicks > 0:
+                    # Seleccionar los dataframes según la selección del usuario
+                    df_c.sort_values(by='Año', inplace=True)
+                    df_g.sort_values(by='Año', inplace=True)
+                    df_pc.sort_values(by='Año', inplace=True)
+                    df_sc.sort_values(by='Año', inplace=True)
+                    
+                    dataframes = {
+                        'Santa Cruz': df_sc,
+                        'Cordillera': df_pc,
+                        'Camiri': df_c,
+                        'Gutierrez': df_g
+                    }
+                    
+                    dataframes_total = {
+                        'Santa Cruz': df_sc_t,
+                        'Cordillera': df_pc_t,
+                        'Camiri': df_c_t,
+                        'Gutierrez': df_g_t
+                    }
+                    
+                    if (len(selected_dataframes) == 3):
+                        if graphic_type == 't':
+                            # Generar y retornar el gráfico con los parámetros seleccionados
+                            return generate_lines_total(dataframes_total[selected_dataframes[0]], dataframes_total[selected_dataframes[1]], dataframes_total[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        elif graphic_type == 's1':
+                            # Generar y retornar el gráfico con los parámetros seleccionados
+                            return generate_lines_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        elif graphic_type == 's2':
+                            # Generar y retornar el gráfico con los parámetros seleccionados
+                            return generate_lines_separate_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        elif graphic_type == 's3':
+                            return generate_lines_comparison_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        else:
+                            return html.Div("") 
+                    elif (len(selected_dataframes) == 1):
+                        if graphic_type == 'e':
+                            if pathname == '/neumonia' or pathname == '/chagas':
+                                return plot_age_percentages(dataframes[selected_dataframes[0]], r_m, r_h, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
+                            else:
+                                return plot_age_percentages(dataframes[selected_dataframes[0]], r_m, r_h, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)
+                        else:
+                            return html.Div("")
+                    else:
+                        # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
+                        return html.Div("")
+            
+            return html.Div("")
+              
+        except Exception as e:
+            return html.Div(f'Error: {e}')
+
+# Callback para realizar el cálculo de incidencias y porcentajes
+@app.callback(
+    Output('output-data-nutricion', 'children'),
+    [
+        Input('btn-calcular-nutricion', 'n_clicks'),
+        Input('dropdown-type-nutrition', 'value'),
+        Input('dropdown-graphic-type', 'value'),
+        Input('dropdown-type-percent', 'value'),
+        Input('dropdown-dataframes', 'value'),
+        Input('input-titulo', 'value'),
+        Input('input-tamaño-titulo', 'value'),
+        Input('input-pie', 'value'),
+        Input('input-tamaño-pie', 'value'),
+        Input('input-tamaño-leyenda', 'value'),
+        Input('input-tamaño-num-grafica', 'value'),
+        Input('dropdown-legend-loc', 'value')
+    ],
+    [State('input-factor', 'value'),
+     State('url', 'pathname')]  # Capturar el pathname actual
+)
+def update_output(n_clicks, type_nutrition, graphic_type, type_percent, selected_dataframes, titulo, 
+                  tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 
+                  factor, pathname):
+    if n_clicks:
+        try:
+            # Convertir a listas de poblaciones
+            p_c, p_g, p_pc, p_sc = get_poblacion_especiales()
+            p = p_c.groupby('Año')['Embarazos'].sum().tolist()
+            p_2 = p_g.groupby('Año')['Embarazos'].sum().tolist()
+            p_3 = p_pc.groupby('Año')['Embarazos'].sum().tolist()
+            p_4 = p_sc.groupby('Año')['Embarazos'].sum().tolist()
+            
+            if tamanio_titulo != None:
+                tamanio_titulo = int(tamanio_titulo)
+            else:
+                tamanio_titulo = 16
+            if tamanio_pie != None:
+                tamanio_pie = int(tamanio_pie)
+            else:
+                tamanio_pie = 10
+            if tamanio_leyenda != None:
+                tamanio_leyenda = int(tamanio_leyenda)
+            else:
+                tamanio_leyenda = 8
+            if tamanio_num_grafica != None:
+                tamanio_num_grafica = int(tamanio_num_grafica)
+            else:
+                tamanio_num_grafica = 10
+            
             fig = go.Figure()
             
-             # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
-            if pathname == '/cancer':
-                df_c_cancer, df_g_cancer, df_pc_cancer, df_sc_cancer = get_casos_cancer()
-                
-                df_c_t = generate_total(df_c_cancer)
-                df_g_t = generate_total(df_g_cancer)
-                df_pc_t = generate_total(df_pc_cancer)
-                df_sc_t = generate_total(df_sc_cancer)
-                
-                df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)
-                df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-                df_c = calculate_gender(df_c_cancer, factor, m, h)
-                df_g = calculate_gender(df_g_cancer, factor, m_2, h_2)
-                df_pc = calculate_gender(df_pc_cancer, factor, m_3, h_3)
-                df_sc = calculate_gender(df_sc_cancer, factor, m_4, h_4)
-            
-                    
-            elif pathname == '/diabetes':
-                df_c_diabetes, df_g_diabetes, df_pc_diabetes, df_sc_diabetes = get_casos_diabetes()
-                
-                df_c_t = generate_total(df_c_diabetes)
-                df_g_t = generate_total(df_g_diabetes)
-                df_pc_t = generate_total(df_pc_diabetes)
-                df_sc_t = generate_total(df_sc_diabetes)
-                
-                df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)
-                df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-                df_c = calculate_gender(df_c_diabetes, factor, m, h)
-                df_g = calculate_gender(df_g_diabetes, factor, m_2, h_2)
-                df_pc = calculate_gender(df_pc_diabetes, factor, m_3, h_3)
-                df_sc = calculate_gender(df_sc_diabetes, factor, m_4, h_4)
-                
-                print(factor, p)
-            elif pathname == '/hipertension':
-                df_c_hipertension, df_g_hipertension, df_pc_hipertension, df_sc_hipertension = get_casos_hipertension()
-                
-                df_c_t = generate_total(df_c_hipertension)
-                df_g_t = generate_total(df_g_hipertension)
-                df_pc_t = generate_total(df_pc_hipertension)
-                df_sc_t = generate_total(df_sc_hipertension)
-                
-                df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)
-                df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-                df_c = calculate_gender(df_c_hipertension, factor, m, h)
-                df_g = calculate_gender(df_g_hipertension, factor, m_2, h_2)
-                df_pc = calculate_gender(df_pc_hipertension, factor, m_3, h_3)
-                df_sc = calculate_gender(df_sc_hipertension, factor, m_4, h_4)
-                
-            elif pathname == '/obesidad':
-                df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad = get_casos_obesidad()
-                
-                df_c_t = generate_total(df_c_obesidad)
-                df_g_t = generate_total(df_g_obesidad)
-                df_pc_t = generate_total(df_pc_obesidad)
-                df_sc_t = generate_total(df_sc_obesidad)
-                
-                df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)
-                df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-                df_c = calculate_gender(df_c_obesidad, factor, m, h)
-                df_g = calculate_gender(df_g_obesidad, factor, m_2, h_2)
-                df_pc = calculate_gender(df_pc_obesidad, factor, m_3, h_3)
-                df_sc = calculate_gender(df_sc_obesidad, factor, m_4, h_4)
-                
-            elif pathname == '/neumonia':
-                df_c_neumonia, df_g_neumonia, df_pc_neumonia, df_sc_neumonia = get_casos_neumonia()
-                
-                df_c_t = generate_total(df_c_neumonia)
-                df_g_t = generate_total(df_g_neumonia)
-                df_pc_t = generate_total(df_pc_neumonia)
-                df_sc_t = generate_total(df_sc_neumonia)
-                
-                df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)
-                df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-                df_c = calculate_gender(df_c_neumonia, factor, m, h)
-                df_g = calculate_gender(df_g_neumonia, factor, m_2, h_2)
-                df_pc = calculate_gender(df_pc_neumonia, factor, m_3, h_3)
-                df_sc = calculate_gender(df_sc_neumonia, factor, m_4, h_4)
-                
-            elif pathname == '/chagas':
-                df_c_chagas, df_g_chagas, df_pc_chagas, df_sc_chagas = get_casos_neumonia()
-                
-                df_c_t = generate_total(df_c_chagas)
-                df_g_t = generate_total(df_g_chagas)
-                df_pc_t = generate_total(df_pc_chagas)
-                df_sc_t = generate_total(df_sc_chagas)
-                
-                df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)
-                df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-                df_c = calculate_gender(df_c_chagas, factor, m, h)
-                df_g = calculate_gender(df_g_chagas, factor, m_2, h_2)
-                df_pc = calculate_gender(df_pc_chagas, factor, m_3, h_3)
-                df_sc = calculate_gender(df_sc_chagas, factor, m_4, h_4)
-                
-            elif pathname == '/vih':
-                df_c_vih, df_g_vih, df_pc_vih, df_sc_vih = get_casos_vih()
-                
-                df_c_t = generate_total(df_c_vih)
-                df_g_t = generate_total(df_g_vih)
-                df_pc_t = generate_total(df_pc_vih)
-                df_sc_t = generate_total(df_sc_vih)
-                
-                df_c_t = calculate_total(df_c_t, factor, p)
-                df_g_t = calculate_total(df_g_t, factor, p_2)
-                df_pc_t = calculate_total(df_pc_t, factor, p_3)
-                df_sc_t = calculate_total(df_sc_t, factor, p_4)
-                
-                df_c = calculate_gender(df_c_vih, factor, m, h)
-                df_g = calculate_gender(df_g_vih, factor, m_2, h_2)
-                df_pc = calculate_gender(df_pc_vih, factor, m_3, h_3)
-                df_sc = calculate_gender(df_sc_vih, factor, m_4, h_4)
-                
-            
-            if n_clicks > 0:
-                # Seleccionar los dataframes según la selección del usuario
-                df_c.sort_values(by='Año', inplace=True)
-                df_g.sort_values(by='Año', inplace=True)
-                df_pc.sort_values(by='Año', inplace=True)
-                df_sc.sort_values(by='Año', inplace=True)
-                
-                dataframes = {
-                    'Santa Cruz': df_sc,
-                    'Cordillera': df_pc,
-                    'Camiri': df_c,
-                    'Gutierrez': df_g
-                }
-                
-                dataframes_total = {
-                    'Santa Cruz': df_sc_t,
-                    'Cordillera': df_pc_t,
-                    'Camiri': df_c_t,
-                    'Gutierrez': df_g_t
-                }
-                
-                if (len(selected_dataframes) == 3):
-                    if graphic_type == 't':
-                        # Generar y retornar el gráfico con los parámetros seleccionados
-                        return generate_lines_total(dataframes_total[selected_dataframes[0]], dataframes_total[selected_dataframes[1]], dataframes_total[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    elif graphic_type == 's1':
-                        # Generar y retornar el gráfico con los parámetros seleccionados
-                        return generate_lines_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    elif graphic_type == 's2':
-                        # Generar y retornar el gráfico con los parámetros seleccionados
-                        return generate_lines_separate_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    elif graphic_type == 's3':
-                        return generate_lines_comparison_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
-                    else:
-                        return html.Div("") 
-                elif (len(selected_dataframes) == 1):
-                    if graphic_type == 'e':
-                        if pathname == '/neumonia' or pathname == '/chagas':
-                            return plot_age_percentages(dataframes[selected_dataframes[0]], r_m, r_h, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
-                        else:
-                            return plot_age_percentages(dataframes[selected_dataframes[0]], r_m, r_h, 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.25)
-                    else:
-                        return html.Div("")
-                else:
-                    # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
-                    return html.Div("")
+            if pathname == '/nutricion':
+                df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad, df_c_sobrepeso, df_g_sobrepeso, df_pc_sobrepeso, df_sc_sobrepeso, df_c_desnutricion, df_g_desnutricion, df_pc_desnutricion, df_sc_desnutricion = get_casos_nutricion()
 
-            return dcc.Graph(figure=fig)
+                if type_nutrition == 'o':
+                    df_c = calculate_total(df_c_obesidad, factor, p, 'Embarazadas')
+                    df_g = calculate_total(df_g_obesidad, factor, p_2, 'Embarazadas')
+                    df_pc = calculate_total(df_pc_obesidad, factor, p_3, 'Embarazadas')
+                    df_sc = calculate_total(df_sc_obesidad, factor, p_4, 'Embarazadas')
+                elif type_nutrition == 's':
+                    df_c = calculate_total(df_c_sobrepeso, factor, p, 'Embarazadas')
+                    df_g = calculate_total(df_g_sobrepeso, factor, p_2, 'Embarazadas')
+                    df_pc = calculate_total(df_pc_sobrepeso, factor, p_3, 'Embarazadas')
+                    df_sc = calculate_total(df_sc_sobrepeso, factor, p_4, 'Embarazadas')
+                elif type_nutrition == 'd':
+                    df_c = calculate_total(df_c_desnutricion, factor, p, 'Embarazadas')
+                    df_g = calculate_total(df_g_desnutricion, factor, p_2, 'Embarazadas')
+                    df_pc = calculate_total(df_pc_desnutricion, factor, p_3, 'Embarazadas')
+                    df_sc = calculate_total(df_sc_desnutricion, factor, p_4, 'Embarazadas')    
+                
+                if n_clicks > 0:
+                    # Seleccionar los dataframes según la selección del usuario
+                    df_c.sort_values(by='Año', inplace=True)
+                    df_g.sort_values(by='Año', inplace=True)
+                    df_pc.sort_values(by='Año', inplace=True)
+                    df_sc.sort_values(by='Año', inplace=True)
                     
+                    dataframes = {
+                        'Santa Cruz': df_sc,
+                        'Cordillera': df_pc,
+                        'Camiri': df_c,
+                        'Gutierrez': df_g
+                    }
+                    
+                    if (len(selected_dataframes) == 3):
+                        if graphic_type == 'tj':
+                            # Generar y retornar el gráfico con los parámetros seleccionados
+                            return generate_lines_total(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        elif graphic_type == 'ts':
+                            # Generar y retornar el gráfico con los parámetros seleccionados
+                            return generate_lines_separate_nutricion(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        else:
+                            return html.Div("") 
+                    else:
+                        # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
+                        return html.Div("")
+
+            
+            return html.Div("")       
         except Exception as e:
             return html.Div(f'Error: {e}')
 

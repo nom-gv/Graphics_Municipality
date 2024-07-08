@@ -212,6 +212,19 @@ def calculate_total(df, factor, p, column):
     df['Porcentaje'] = (((df[column]/suma_total)) * 100).round(2)
     
     return df
+
+def calculate_total_embarazadas(df, factor, p, column):
+    poblacion_estimada = {
+        2019: p[0],
+        2020: p[1],
+        2021: p[2],
+        2022: p[3],
+        2023: p[4]
+    }
+    df['Incidencia'] = (((df[column]/df['Año'].map(poblacion_estimada)) * factor).round(0)).astype(int)
+    df['Porcentaje'] = (((df[column]/df['Total'])) * 100).round(2)
+    
+    return df
     
 
 def generate_lines_total(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
@@ -775,7 +788,7 @@ app.layout = html.Div([
             html.Li(dcc.Link('Chagas', href='/chagas')),
             html.Li(dcc.Link('VIH', href='/vih')),
             html.Li(dcc.Link('Nutrición Embarazo', href='/nutricion')),
-            html.Li(dcc.Link('Embarazo Adolescente', href='/adolescentes')),
+            html.Li(dcc.Link('Embarazo Adolescente', href='/embarazo')),
             html.Li(dcc.Link('Consultas Externas', href='/consultas')),
         ], className='menu')
     ], className='menu-column'),
@@ -1022,6 +1035,112 @@ calculo_layout_nutricion = html.Div([
     html.Div(id='output-data-nutricion')
 ])
 
+# Define el layout de la página de cálculo
+calculo_layout_embarazo = html.Div([    
+    html.H1("Gráficos de Tendencia"),
+    html.Div([
+        html.Span('Factor'),
+        dcc.Input(id='input-factor', type='number', value=10000, style={'width': '80px'})
+    ]),
+    html.Label('Rango de edad:'),
+    dcc.Dropdown(
+        id='dropdown-type-age',
+        options=[
+            {'label': '< 15', 'value': 'r1'},
+            {'label': '15 - 19', 'value': 'r2'},
+            {'label': '< 19', 'value': 'r3'},
+        ],
+        value='r3'  # Valor inicial seleccionado
+    ),
+    html.Label('Meses de Embarazo:'),
+    dcc.Dropdown(
+        id='dropdown-type-mounth',
+        options=[
+            {'label': '< 5to mes + > 5to mes', 'value': 'm1'},
+            {'label': '< 5to mes', 'value': 'm2'},
+            {'label': '> 5to mes', 'value': 'm3'},
+        ],
+        value='m1'  # Valor inicial seleccionado
+    ),
+    html.Label('Porcentaje o Incidencias:'),
+    dcc.Dropdown(
+        id='dropdown-type-percent',
+        options=[
+            {'label': 'Incidencias', 'value': 'Incidencia'},
+            {'label': 'Porcentajes', 'value': 'Porcentaje'},
+        ],
+        value='Incidencia'  # Valor inicial seleccionado
+    ),
+    html.Label('Seleccionar dataframes para graficar:'),
+    dcc.Dropdown(
+        id='dropdown-dataframes',
+        options=opciones_dataframes,
+        multi=True,
+        value=['Santa Cruz', 'Cordillera', 'Camiri']  # Valores iniciales seleccionados
+    ),
+    html.Div([
+        html.Label('Título del gráfico: '),
+        dcc.Input(
+            id='input-titulo',
+            type='text',
+            value='Comparación a nivel departamental, provincial y municipal casos de X'
+        ),
+        html.Label("Tamaño de letra titulo: "),
+        dcc.Input(
+            id='input-tamaño-titulo',
+            type='number',
+            value='12'
+        )
+    ]),
+    
+    html.Div([
+        html.Label('Pie de Pagina: '),
+        dcc.Input(
+            id='input-pie',
+            type='text',
+            value='Datos obtenidos de la página del SNIS'
+        ),
+        html.Label("Tamaño de letra pie: "),
+        dcc.Input(
+            id='input-tamaño-pie',
+            type='number',
+            value='10'
+        )
+    ]),
+    
+    html.Label('Ubicación de la leyenda:'),
+    dcc.Dropdown(
+        id='dropdown-legend-loc',
+        options=[
+            {'label': 'Arriba a la izquierda', 'value': 'upper left'},
+            {'label': 'Arriba a la derecha', 'value': 'upper right'},
+            {'label': 'Abajo a la izquierda', 'value': 'lower left'},
+            {'label': 'Abajo a la derecha', 'value': 'lower right'}
+        ],
+        value='upper left'  # Valor inicial seleccionado
+    ),
+    
+    html.Div([
+        html.Label('Tamaño de letra leyenda: '),
+        dcc.Input(
+            id='input-tamaño-leyenda',
+            type='number',
+            value='8',
+            style={'width': '80px'}
+        ),
+        html.Label("Tamaño de letra de Numeros Graficas: "),
+        dcc.Input(
+            id='input-tamaño-num-grafica',
+            type='number',
+            value='10',
+            style={'width': '80px'}
+        )
+    ]),
+    
+    html.Button('Generar Gráfico', id='btn-calcular-embarazo'),
+    html.Div(id='output-data-embarazo')
+])
+
 app.title = "Generate Graph Municipality"
 
 # Callback para actualizar el contenido según la URL
@@ -1117,6 +1236,16 @@ def display_page(pathname):
             html.H3('Desnutricion'),
             create_table(df_g_d),
             calculo_layout_nutricion
+        ])
+    elif pathname == '/embarazo':
+        df_c_embarazo, df_g_embarazo, d1, d2 = get_casos_embarazo()
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Embarazo Adolescente'),
+            html.H2('Datos Camiri'),
+            create_table(df_c_embarazo),
+            html.H2('Datos Gutierrez'),
+            create_table(df_g_embarazo),
+            calculo_layout_embarazo
         ])
     else:
         return html.Div([
@@ -1435,8 +1564,7 @@ def update_output(n_clicks, type_nutrition, graphic_type, type_percent, selected
                 tamanio_num_grafica = int(tamanio_num_grafica)
             else:
                 tamanio_num_grafica = 10
-            
-            fig = go.Figure()
+    
             
             if pathname == '/nutricion':
                 df_c_obesidad, df_g_obesidad, df_pc_obesidad, df_sc_obesidad, df_c_sobrepeso, df_g_sobrepeso, df_pc_sobrepeso, df_sc_sobrepeso, df_c_desnutricion, df_g_desnutricion, df_pc_desnutricion, df_sc_desnutricion = get_casos_nutricion()
@@ -1480,6 +1608,125 @@ def update_output(n_clicks, type_nutrition, graphic_type, type_percent, selected
                             return generate_lines_separate_nutricion(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
                         else:
                             return html.Div("") 
+                    else:
+                        # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
+                        return html.Div("")
+            
+            return html.Div("")       
+        except Exception as e:
+            return html.Div(f'Error: {e}')
+        
+# Callback para realizar el cálculo de incidencias y porcentajes
+@app.callback(
+    Output('output-data-embarazo', 'children'),
+    [
+        Input('btn-calcular-embarazo', 'n_clicks'),
+        Input('dropdown-type-age', 'value'),
+        Input('dropdown-type-mounth', 'value'),
+        Input('dropdown-type-percent', 'value'),
+        Input('dropdown-dataframes', 'value'),
+        Input('input-titulo', 'value'),
+        Input('input-tamaño-titulo', 'value'),
+        Input('input-pie', 'value'),
+        Input('input-tamaño-pie', 'value'),
+        Input('input-tamaño-leyenda', 'value'),
+        Input('input-tamaño-num-grafica', 'value'),
+        Input('dropdown-legend-loc', 'value')
+    ],
+    [State('input-factor', 'value'),
+     State('url', 'pathname')]  # Capturar el pathname actual
+)
+def update_output(n_clicks, type_age, type_mounth, type_percent, selected_dataframes, titulo, 
+                  tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 
+                  factor, pathname):
+    if n_clicks:
+        try:
+            # Convertir a listas de poblaciones
+            p_c, p_g, p_pc, p_sc = get_poblacion_especiales()
+            if type_age == 'r1':
+                p = p_c.groupby('Año')['10-14'].sum().tolist()
+                p_2 = p_g.groupby('Año')['10-14'].sum().tolist()
+                p_3 = p_pc.groupby('Año')['10-14'].sum().tolist()
+                p_4 = p_sc.groupby('Año')['10-14'].sum().tolist()
+            elif type_age == 'r2':
+                p = p_c.groupby('Año')['15-19'].sum().tolist()
+                p_2 = p_g.groupby('Año')['15-19'].sum().tolist()
+                p_3 = p_pc.groupby('Año')['15-19'].sum().tolist()
+                p_4 = p_sc.groupby('Año')['15-19'].sum().tolist()
+            else:
+                p = p_c.groupby('Año')['Adolescentes'].sum().tolist()
+                p_2 = p_g.groupby('Año')['Adolescentes'].sum().tolist()
+                p_3 = p_pc.groupby('Año')['Adolescentes'].sum().tolist()
+                p_4 = p_sc.groupby('Año')['Adolescentes'].sum().tolist()
+            
+            if tamanio_titulo != None:
+                tamanio_titulo = int(tamanio_titulo)
+            else:
+                tamanio_titulo = 16
+            if tamanio_pie != None:
+                tamanio_pie = int(tamanio_pie)
+            else:
+                tamanio_pie = 10
+            if tamanio_leyenda != None:
+                tamanio_leyenda = int(tamanio_leyenda)
+            else:
+                tamanio_leyenda = 8
+            if tamanio_num_grafica != None:
+                tamanio_num_grafica = int(tamanio_num_grafica)
+            else:
+                tamanio_num_grafica = 10
+            
+            if pathname == '/embarazo':
+                df_c_embarazo, df_g_embarazo, df_pc_embarazo, df_sc_embarazo = get_casos_embarazo()
+
+                if type_mounth == 'm1':
+                    df_c_embarazo = df_c_embarazo.groupby('Año').sum().reset_index()
+                    df_g_embarazo = df_g_embarazo.groupby('Año').sum().reset_index()
+                    df_pc_embarazo = df_pc_embarazo.groupby('Año').sum().reset_index()
+                    df_sc_embarazo = df_sc_embarazo.groupby('Año').sum().reset_index()
+                elif type_mounth == 'm2':
+                    df_c_embarazo = df_c_embarazo[df_c_embarazo['Tipo'] == 'Nuevo < 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                    df_g_embarazo = df_g_embarazo[df_g_embarazo['Tipo'] == 'Nuevo < 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                    df_pc_embarazo = df_pc_embarazo[df_pc_embarazo['Tipo'] == 'Nuevo < 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                    df_sc_embarazo = df_sc_embarazo[df_sc_embarazo['Tipo'] == 'Nuevo < 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                else:
+                    df_c_embarazo = df_c_embarazo[df_c_embarazo['Tipo'] == 'Nuevo > 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                    df_g_embarazo = df_g_embarazo[df_g_embarazo['Tipo'] == 'Nuevo > 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                    df_pc_embarazo = df_pc_embarazo[df_pc_embarazo['Tipo'] == 'Nuevo > 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                    df_sc_embarazo = df_sc_embarazo[df_sc_embarazo['Tipo'] == 'Nuevo > 5'].drop(columns=['Tipo']).reset_index(drop=True)
+                
+                if type_age == 'r1':
+                    df_c = calculate_total_embarazadas(df_c_embarazo, factor, p, '< 15')
+                    df_g = calculate_total_embarazadas(df_g_embarazo, factor, p_2, '< 15')
+                    df_pc = calculate_total_embarazadas(df_pc_embarazo, factor, p_3, '< 15')
+                    df_sc = calculate_total_embarazadas(df_sc_embarazo, factor, p_4, '< 15')
+                elif type_age == 'r2':
+                    df_c = calculate_total_embarazadas(df_c_embarazo, factor, p, '15-19')
+                    df_g = calculate_total_embarazadas(df_g_embarazo, factor, p_2, '15-19')
+                    df_pc = calculate_total_embarazadas(df_pc_embarazo, factor, p_3, '15-19')
+                    df_sc = calculate_total_embarazadas(df_sc_embarazo, factor, p_4, '15-19')
+                else:
+                    df_c = calculate_total_embarazadas(df_c_embarazo, factor, p, '< 19')
+                    df_g = calculate_total_embarazadas(df_g_embarazo, factor, p_2, '< 19')
+                    df_pc = calculate_total_embarazadas(df_pc_embarazo, factor, p_3, '< 19')
+                    df_sc = calculate_total_embarazadas(df_sc_embarazo, factor, p_4, '< 19')
+                
+                if n_clicks > 0:
+                    # Seleccionar los dataframes según la selección del usuario
+                    df_c.sort_values(by='Año', inplace=True)
+                    df_g.sort_values(by='Año', inplace=True)
+                    df_pc.sort_values(by='Año', inplace=True)
+                    df_sc.sort_values(by='Año', inplace=True)
+                    
+                    dataframes = {
+                        'Santa Cruz': df_sc,
+                        'Cordillera': df_pc,
+                        'Camiri': df_c,
+                        'Gutierrez': df_g
+                    }
+                    
+                    if (len(selected_dataframes) == 3):
+                        return generate_lines_total(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', type_percent, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
                     else:
                         # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
                         return html.Div("")

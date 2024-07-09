@@ -150,7 +150,9 @@ def get_casos_consulta():
     df_g_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-G")
     df_pc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-PC")
     df_sc_consulta = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="CONSULTAS-SC")
-    return df_c_consulta, df_g_consulta, df_pc_consulta, df_sc_consulta
+
+    df_c_consulta_2 = pd.read_excel('CasosConsultaExterna.xlsx', sheet_name="SEGUNDO-C")
+    return df_c_consulta, df_g_consulta, df_pc_consulta, df_sc_consulta, df_c_consulta_2
 
 def get_poblacion():
     df_c_poblacion = pd.read_excel('DatosPoblaciones.xlsx', sheet_name="POBLACION-C")
@@ -225,7 +227,93 @@ def calculate_total_embarazadas(df, factor, p, column):
     df['Porcentaje'] = (((df[column]/df['Total'])) * 100).round(2)
     
     return df
+
+def calculate_total_consultas(df):
+    # Calcular el total del año sumando hombres y mujeres
+    df['Total Año'] = df.groupby('Año')['Total'].transform('sum')
+    # Calcular el porcentaje para hombres y mujeres por año
+    df['Porcentaje'] = (df['Total'] / df['Total Año'] * 100).round(2).astype(int)
+    # Eliminar columnas auxiliares si no son necesarias
+    df.drop(columns=['Total Año'], inplace=True)
     
+    return df
+
+def calculate_table_total_percent(df):
+    # Agrupar por año y sexo para obtener los totales
+    df_totales = df.groupby(['Año', 'Sexo'])['Total'].sum().unstack()
+
+    # Calcular el total general por año
+    df_totales['Total'] = df_totales.sum(axis=1)
+
+    # Calcular los porcentajes
+    df_totales['% Hombres'] = (df_totales['Hombre'] / df_totales['Total'] * 100).round(2).astype(str) + '%'
+    df_totales['% Mujeres'] = (df_totales['Mujer'] / df_totales['Total'] * 100).round(2).astype(str) + '%'
+
+    # Crear el nuevo DataFrame con los totales y porcentajes
+    df_resultado = pd.DataFrame({
+        'Año': df_totales.index,
+        'Total Hombres': df_totales['Hombre'].astype(str) + ' (' + df_totales['% Hombres'] + ')',
+        'Total Mujeres': df_totales['Mujer'].astype(str) + ' (' + df_totales['% Mujeres'] + ')',
+        'Total': df_totales['Total']
+    }).reset_index(drop=True)
+    
+    return df_resultado
+
+def calculate_table_total_percent_age(df):
+    # Sumar los rangos de edad y crear nuevas columnas
+    df['0-9'] = df['< 6'] + df['0-1'] + df['1-4'] + df['5-9']
+    df['10-19'] = df['10-14'] + df['15-19']
+    
+    # Seleccionar las columnas deseadas
+    df_totales = df[['Año', 'Sexo', '0-9', '10-19', '20-39', '40-49', '50-59', '60+', 'Total']]
+    
+    # Calcular los porcentajes y formatear los valores con los porcentajes
+    for col in ['0-9', '10-19', '20-39', '40-49', '50-59', '60+']:
+        df_totales[col] = df_totales.apply(lambda row: f"{row[col]} ({(row[col] / row['Total'] * 100):.2f}%)", axis=1)
+    
+    return df_totales
+
+def calculate_percent_second(df):
+    # Crear una copia del DataFrame para no modificar el original
+    df_resultado = df.copy()
+    
+    # Crear columnas adicionales para los porcentajes calculados
+    df_resultado['Porcentaje Hombres'] = 0.0
+    df_resultado['Porcentaje Mujeres'] = 0.0
+    
+    # Calcular los porcentajes
+    for year in df_resultado['Año'].unique():
+        total_hombres_anio = df_resultado[df_resultado['Año'] == year]['Total Hombres'].sum()
+        total_mujeres_anio = df_resultado[df_resultado['Año'] == year]['Total Mujeres'].sum()
+        
+        df_resultado.loc[df_resultado['Año'] == year, 'Porcentaje Hombres'] = round(df_resultado['Total Hombres'] / total_hombres_anio * 100,2)
+        df_resultado.loc[df_resultado['Año'] == year, 'Porcentaje Mujeres'] = round(df_resultado['Total Mujeres'] / total_mujeres_anio * 100,2)
+    
+    return df_resultado
+
+def calculate_percent_second_age(df):
+    # Seleccionar las columnas deseadas
+    df_totales = df[['Año', 'Especialidad', '[H] 0-9', '[H] 10-19', '[H] 20-39', '[H] 40-49', '[H] 50-59', '[H] 60+', '[M] 0-9', '[M] 10-19', '[M] 20-39', '[M] 40-49', '[M] 50-59', '[M] 60+', 'Total']]
+    df_resultado = df_totales.copy()
+
+    rangos_edad = ['0-9', '10-19', '20-39', '40-49', '50-59', '60+']
+    for rango in rangos_edad:
+        df_resultado[f'% [H] {rango}'] = 0.0
+        df_resultado[f'% [M] {rango}'] = 0.0
+
+    # Calcular los porcentajes
+    for year in df_resultado['Año'].unique():
+        for rango in rangos_edad:
+            total_hombres_anio = df_resultado[df_resultado['Año'] == year][f'[H] {rango}'].sum()
+            total_mujeres_anio = df_resultado[df_resultado['Año'] == year][f'[M] {rango}'].sum()
+
+            if total_hombres_anio > 0:
+                df_resultado.loc[df_resultado['Año'] == year, f'% [H] {rango}'] = round(df_resultado[f'[H] {rango}'] / total_hombres_anio * 100, 2)
+            if total_mujeres_anio > 0:
+                df_resultado.loc[df_resultado['Año'] == year, f'% [M] {rango}'] = round(df_resultado[f'[M] {rango}'] / total_mujeres_anio * 100, 2)
+
+    return df_resultado
+
 
 def generate_lines_total(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
     colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
@@ -630,7 +718,7 @@ def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer
     
     # Calcular porcentajes
     if y_column == "Porcentaje":
-        df_percent['0-9 %'] = df_percent.apply(
+        """df_percent['0-9 %'] = df_percent.apply(
             lambda row: (row['0-9'] / total_hombres * 100) if row['Sexo'] == 'Hombre' else (row['0-9'] / total_mujeres * 100),
             axis=1
         ).round(2)
@@ -653,7 +741,13 @@ def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer
         df_percent['60+ %'] = df_percent.apply(
             lambda row: (row['60+'] / total_hombres * 100) if row['Sexo'] == 'Hombre' else (row['60+'] / total_mujeres * 100),
             axis=1
-        ).round(2)
+        ).round(2)"""
+        df_percent['0-9 %'] = df_percent.apply(lambda row: round((row['0-9'] / row['Total']) * 100, 2) if row['Total'] != 0 else 0, axis=1)
+        df_percent['10-19 %'] = df_percent.apply(lambda row: round((row['10-19'] / row['Total']) * 100, 2) if row['Total'] != 0 else 0, axis=1)
+        df_percent['20-39 %'] = df_percent.apply(lambda row: round((row['20-39'] / row['Total']) * 100, 2) if row['Total'] != 0 else 0, axis=1)
+        df_percent['40-49 %'] = df_percent.apply(lambda row: round((row['40-49'] / row['Total']) * 100, 2) if row['Total'] != 0 else 0, axis=1)
+        df_percent['50-59 %'] = df_percent.apply(lambda row: round((row['50-59'] / row['Total']) * 100, 2) if row['Total'] != 0 else 0, axis=1)
+        df_percent['60+ %'] = df_percent.apply(lambda row: round((row['60+'] / row['Total']) * 100, 2) if row['Total'] != 0 else 0, axis=1)
     else:
         total_mujeres_0_9 = {2019: m[0], 2020: m[1], 2021: m[2], 2022: m[3], 2023: m[4]}
         total_mujeres_10_19 = {2019: m[5], 2020: m[6], 2021: m[7], 2022: m[8], 2023: m[9]}
@@ -773,6 +867,391 @@ def plot_age_percentages(df, m, h, x_column, y_column, title, size_title, footer
         html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
     ])
 
+def generate_bars_gender(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
+    años = sorted(df1[x_column].unique())
+    bar_width = 0.334
+    r1 = range(len(años))
+    r2 = [x + bar_width for x in r1]
+    r3 = [x + bar_width for x in r2]
+
+    fig, ax = plt.subplots(1, 2, figsize=(15, 6), sharey=True)
+
+    colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
+
+    # Gráfica para hombres
+    ax[0].bar(r1, df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[5], width=bar_width, label=labels[0])
+    ax[0].bar(r2, df2[df2['Sexo'] == 'Hombre'][y_column], color=colors[6], width=bar_width, label=labels[1])
+    ax[0].bar(r3, df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[7], width=bar_width, label=labels[2])
+    ax[0].set_xlabel(x_column)
+    ax[0].set_title(f'Tendencia de Porcentaje - Hombres')
+    ax[0].legend(loc=legend_loc, fontsize=size_legend)
+    ax[0].set_xticks([r + bar_width for r in range(len(años))])
+    ax[0].set_xticklabels(años)
+
+    for r, y in zip([r1, r2, r3], [df1[df1['Sexo'] == 'Hombre'][y_column], df2[df2['Sexo'] == 'Hombre'][y_column], df3[df3['Sexo'] == 'Hombre'][y_column]]):
+        for x, val in zip(r, y):
+            ax[0].text(x, val, f"{val:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    # Gráfica para mujeres
+    ax[1].bar(r1, df1[df1['Sexo'] == 'Mujer'][y_column], color=colors[0], width=bar_width, label=labels[0])
+    ax[1].bar(r2, df2[df2['Sexo'] == 'Mujer'][y_column], color=colors[1], width=bar_width, label=labels[1])
+    ax[1].bar(r3, df3[df3['Sexo'] == 'Mujer'][y_column], color=colors[2], width=bar_width, label=labels[2])
+    ax[1].set_xlabel(x_column)
+    ax[1].set_title(f'Tendencia de Porcentaje - Mujeres')
+    ax[1].legend(loc=legend_loc, fontsize=size_legend)
+    ax[1].set_xticks([r + bar_width for r in range(len(años))])
+    ax[1].set_xticklabels(años)
+
+    for r, y in zip([r1, r2, r3], [df1[df1['Sexo'] == 'Mujer'][y_column], df2[df2['Sexo'] == 'Mujer'][y_column], df3[df3['Sexo'] == 'Mujer'][y_column]]):
+        for x, val in zip(r, y):
+            ax[1].text(x, val, f"{val:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    fig.suptitle(title, fontsize=size_title)
+    plt.tight_layout(rect=[0, 0, 1, 1])
+    # Agregar referencia en la parte inferior del gráfico
+    fig.text(0.5, 0.01, footer, ha='center', va='center', fontsize=size_footer, color='black')
+
+    # Convertir la gráfica a base64
+    tmp_file = io.BytesIO()
+    plt.savefig(tmp_file, format='png')
+    tmp_file.seek(0)
+    plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
+
+    # Mostrar la gráfica en un componente HTML
+    return html.Div([
+        html.H2(title),
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+    ])
+
+def generate_bars_separate_gender(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
+    años = sorted(df1[x_column].unique())
+    bar_width = 0.9  # Ajuste del ancho de la barra
+    r1 = [x for x in range(len(años))]
+
+    fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharey=True)
+    colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
+
+    # Gráfica para hombres - Departamento
+    bars1 = ax[0, 0].bar(r1, df1[df1['Sexo'] == 'Hombre'][y_column], color=colors[5], width=bar_width, label=labels[0])
+    ax[0, 0].set_xlabel(x_column)
+    ax[0, 0].set_title(f'Porcentaje Municipal - {labels[0]}')
+    ax[0, 0].legend(loc=legend_loc, fontsize=size_legend)
+    ax[0, 0].set_xticks(r1)
+    ax[0, 0].set_xticklabels(años)
+
+    for bar in bars1:
+        height = bar.get_height()
+        ax[0, 0].text(bar.get_x() + bar.get_width() / 2.0, height, f"{height:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    # Gráfica para hombres - Provincia
+    bars2 = ax[0, 1].bar(r1, df2[df2['Sexo'] == 'Hombre'][y_column], color=colors[6], width=bar_width, label=labels[1])
+    ax[0, 1].set_xlabel(x_column)
+    ax[0, 1].set_title(f'Porcentaje Provincial - {labels[1]}')
+    ax[0, 1].legend(loc=legend_loc, fontsize=size_legend)
+    ax[0, 1].set_xticks(r1)
+    ax[0, 1].set_xticklabels(años)
+
+    for bar in bars2:
+        height = bar.get_height()
+        ax[0, 1].text(bar.get_x() + bar.get_width() / 2.0, height, f"{height:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    # Gráfica para hombres - Municipio
+    bars3 = ax[0, 2].bar(r1, df3[df3['Sexo'] == 'Hombre'][y_column], color=colors[7], width=bar_width, label=labels[2])
+    ax[0, 2].set_xlabel(x_column)
+    ax[0, 2].set_title(f'Porcentaje Departamental - {labels[2]}')
+    ax[0, 2].legend(loc=legend_loc, fontsize=size_legend)
+    ax[0, 2].set_xticks(r1)
+    ax[0, 2].set_xticklabels(años)
+
+    for bar in bars3:
+        height = bar.get_height()
+        ax[0, 2].text(bar.get_x() + bar.get_width() / 2.0, height, f"{height:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    # Gráfica para mujeres - Departamento
+    bars4 = ax[1, 0].bar(r1, df1[df1['Sexo'] == 'Mujer'][y_column], color=colors[0], width=bar_width, label=labels[0])
+    ax[1, 0].set_xlabel(x_column)
+    ax[1, 0].set_title(f'Porcentaje Municipal - {labels[0]}')
+    ax[1, 0].legend(loc=legend_loc, fontsize=size_legend)
+    ax[1, 0].set_xticks(r1)
+    ax[1, 0].set_xticklabels(años)
+
+    for bar in bars4:
+        height = bar.get_height()
+        ax[1, 0].text(bar.get_x() + bar.get_width() / 2.0, height, f"{height:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    # Gráfica para mujeres - Provincia
+    bars5 = ax[1, 1].bar(r1, df2[df2['Sexo'] == 'Mujer'][y_column], color=colors[1], width=bar_width, label=labels[1])
+    ax[1, 1].set_xlabel(x_column)
+    ax[1, 1].set_title(f'Porcentaje Provincial - {labels[1]}')
+    ax[1, 1].legend(loc=legend_loc, fontsize=size_legend)
+    ax[1, 1].set_xticks(r1)
+    ax[1, 1].set_xticklabels(años)
+
+    for bar in bars5:
+        height = bar.get_height()
+        ax[1, 1].text(bar.get_x() + bar.get_width() / 2.0, height, f"{height:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    # Gráfica para mujeres - Municipio
+    bars6 = ax[1, 2].bar(r1, df3[df3['Sexo'] == 'Mujer'][y_column], color=colors[2], width=bar_width, label=labels[2])
+    ax[1, 2].set_xlabel(x_column)
+    ax[1, 2].set_title(f'Porcentaje Departamental - {labels[2]}')
+    ax[1, 2].legend(loc=legend_loc, fontsize=size_legend)
+    ax[1, 2].set_xticks(r1)
+    ax[1, 2].set_xticklabels(años)
+
+    for bar in bars6:
+        height = bar.get_height()
+        ax[1, 2].text(bar.get_x() + bar.get_width() / 2.0, height, f"{height:.2f}%", ha='center', va='bottom', fontsize=size_graph, color='black')
+
+    # Agregar etiquetas para los ejes y
+    fig.text(0.01, 0.75, y_column + ' Hombres', ha='center', va='center', rotation='vertical', fontsize=12, color='black')
+    fig.text(0.01, 0.25, y_column + ' Mujeres', ha='center', va='center', rotation='vertical', fontsize=12, color='black')
+
+    # Ocultar el eje y de todas las subgráficas
+    #for axs in ax:
+    #    for a in axs:
+    #        a.set_yticks([])
+
+    fig.suptitle(title, fontsize=size_title)
+    plt.tight_layout(rect=[0, 0, 1, 1])
+    # Agregar referencia en la parte inferior del gráfico
+    fig.text(0.5, 0.01, footer, ha='center', va='center', fontsize=size_footer, color='black')
+    
+
+    # Convertir la gráfica a base64
+    tmp_file = io.BytesIO()
+    plt.savefig(tmp_file, format='png')
+    tmp_file.seek(0)
+    plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
+
+    # Mostrar la gráfica en un componente HTML
+    return html.Div([
+        html.H2(title),
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+    ])
+
+def generate_bars_comparison_gender(df1, df2, df3, x_column, y_column, title, size_title, footer, size_footer, size_legend, size_graph, labels, legend_loc):
+    años = sorted(df1[x_column].unique())
+    num_años = len(años)
+    bar_width = 0.5  # Ancho de las barras
+
+    colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
+
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+
+    # Gráfica para Municipio
+    bars1_h = ax[0].bar(np.arange(num_años), df1[df1['Sexo'] == 'Hombre'][y_column], bar_width, color=colors[5], label=f'Hombres - {labels[0]}')
+    bars1_m = ax[0].bar(np.arange(num_años) + bar_width, df1[df1['Sexo'] == 'Mujer'][y_column], bar_width, color=colors[0], label=f'Mujeres - {labels[0]}')
+    ax[0].set_xlabel(x_column)
+    ax[0].set_title(f'Comparación Hombres vs Mujeres - {labels[0]}')
+    ax[0].set_xticks(np.arange(num_años) + bar_width / 2)
+    ax[0].set_xticklabels(años)
+    ax[0].legend(loc=legend_loc, fontsize=size_legend)
+
+    # Mostrar datos sobre las barras
+    for bar in bars1_h + bars1_m:
+        height = bar.get_height()
+        ax[0].text(bar.get_x() + bar.get_width() / 2, height, f'{height}%', ha='center', va='bottom', fontsize=size_graph)
+
+    # Gráfica para Provincia
+    bars2_h = ax[1].bar(np.arange(num_años), df2[df2['Sexo'] == 'Hombre'][y_column], bar_width, color=colors[6], label=f'Hombres - {labels[1]}')
+    bars2_m = ax[1].bar(np.arange(num_años) + bar_width, df2[df2['Sexo'] == 'Mujer'][y_column], bar_width, color=colors[1], label=f'Mujeres - {labels[1]}')
+    ax[1].set_xlabel(x_column)
+    ax[1].set_title(f'Comparación Hombres vs Mujeres - {labels[1]}')
+    ax[1].set_xticks(np.arange(num_años) + bar_width / 2)
+    ax[1].set_xticklabels(años)
+    ax[1].legend(loc=legend_loc, fontsize=size_legend)
+
+    # Mostrar datos sobre las barras
+    for bar in bars2_h + bars2_m:
+        height = bar.get_height()
+        ax[1].text(bar.get_x() + bar.get_width() / 2, height, f'{height}%', ha='center', va='bottom', fontsize=size_graph)
+
+    # Gráfica para Departamento
+    bars3_h = ax[2].bar(np.arange(num_años), df3[df3['Sexo'] == 'Hombre'][y_column], bar_width, color=colors[7], label=f'Hombres - {labels[2]}')
+    bars3_m = ax[2].bar(np.arange(num_años) + bar_width, df3[df3['Sexo'] == 'Mujer'][y_column], bar_width, color=colors[2], label=f'Mujeres - {labels[2]}')
+    ax[2].set_xlabel(x_column)
+    ax[2].set_title(f'Comparación Hombres vs Mujeres - {labels[2]}')
+    ax[2].set_xticks(np.arange(num_años) + bar_width / 2)
+    ax[2].set_xticklabels(años)
+    ax[2].legend(loc=legend_loc, fontsize=size_legend)
+
+    # Mostrar datos sobre las barras
+    for bar in bars3_h + bars3_m:
+        height = bar.get_height()
+        ax[2].text(bar.get_x() + bar.get_width() / 2, height, f'{height}%', ha='center', va='bottom', fontsize=size_graph)
+
+    fig.suptitle(title, fontsize=size_title)
+    plt.tight_layout(rect=[0, 0, 1, 1])
+    # Agregar referencia en la parte inferior del gráfico
+    fig.text(0.5, 0.01, footer, ha='center', va='center', fontsize=size_footer, color='black')
+
+    # Convertir la gráfica a base64
+    tmp_file = io.BytesIO()
+    plt.savefig(tmp_file, format='png')
+    tmp_file.seek(0)
+    plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
+
+    # Mostrar la gráfica en un componente HTML
+    return html.Div([
+        html.H2(title),
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+    ])
+
+plt.switch_backend('Agg')
+
+def plot_top_services_by_year_and_gender(df, title, size_title, footer, size_footer, size_graph):
+    years = [2021, 2022, 2023]
+    colors = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF']
+    genders = ['Hombres', 'Mujeres']
+
+    fig, axes = plt.subplots(2, 3, figsize=(16, 12), sharey=True)
+
+    for j, gender in enumerate(genders):
+        for i, year in enumerate(years):
+            bar_width = 1
+            if gender == 'Hombres':
+                col_total = 'Total Hombres'
+                col_percent = 'Porcentaje Hombres'
+            else:
+                col_total = 'Total Mujeres'
+                col_percent = 'Porcentaje Mujeres'
+
+            filtered_df = df[df['Año'] == year].nlargest(5, col_total)
+
+            ax = axes[j, i]
+            if gender == 'Hombres':
+                bars = ax.bar(filtered_df['Especialidad'], filtered_df[col_percent], color=colors[5:10], width=bar_width)
+            else:
+                bars = ax.bar(filtered_df['Especialidad'], filtered_df[col_percent], color=colors[0:5], width=bar_width)
+
+            ax.set_title(f'Top 5 Especialidades para {gender} en {year}')
+            ax.set_xlabel('Especialidad')
+            ax.set_ylabel(f'Porcentaje {gender}')
+            ax.set_xticks(range(len(filtered_df['Especialidad'])))
+            ax.set_xticklabels(filtered_df['Especialidad'], rotation=45, ha='right')
+
+            # Añadir los porcentajes sobre cada barra
+            for bar, percent in zip(bars, filtered_df[col_percent]):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width() / 2, height, f'{percent:.2f}%', ha='center', va='bottom', fontsize=size_graph)
+
+    fig.suptitle(title, fontsize=size_title)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])  # Ajustar rect para dar espacio al título superior
+    fig.text(0.5, 0.01, footer, ha='center', va='center', fontsize=size_footer, color='black')
+
+    # Convertir la gráfica a base64
+    tmp_file = io.BytesIO()
+    plt.savefig(tmp_file, format='png')
+    tmp_file.seek(0)
+    plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
+    plt.close(fig)  # Cerrar explícitamente la figura
+
+    # Mostrar la gráfica en un componente HTML
+    return html.Div([
+        html.H2(title),
+        html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+    ])
+
+def plot_top5_especialidades(df, years, title, size_title, footer, size_footer, size_legend, size_graph, figsize):
+    # Grupos de edades y sus etiquetas
+    grupos_edad = ['% [H] 0-9', '% [H] 10-19', '% [H] 20-39', '% [H] 40-49', '% [H] 50-59', '% [H] 60+']
+    edades = ['0-9', '10-19', '20-39', '40-49', '50-59', '60+']
+    
+    # Lista para almacenar los componentes HTML de cada gráfica
+    graphs = []
+    
+    for year in years:
+        # Filtrar el DataFrame para el año especificado
+        df_year = df[df['Año'] == year]
+
+        # Preparar datos para hombres y mujeres
+        top5_data_hombres = []
+        top5_data_mujeres = []
+
+        for grupo in grupos_edad:
+            # Top 5 para hombres
+            top5_hombres = df_year[['Especialidad', grupo]].sort_values(by=grupo, ascending=False).head(5)
+            top5_hombres = top5_hombres.rename(columns={grupo: 'Porcentaje'})
+            top5_hombres['Grupo Edad'] = grupo
+            top5_data_hombres.append(top5_hombres)
+
+            # Top 5 para mujeres
+            grupo_mujeres = grupo.replace('[H]', '[M]')
+            top5_mujeres = df_year[['Especialidad', grupo_mujeres]].sort_values(by=grupo_mujeres, ascending=False).head(5)
+            top5_mujeres = top5_mujeres.rename(columns={grupo_mujeres: 'Porcentaje'})
+            top5_mujeres['Grupo Edad'] = grupo
+            top5_data_mujeres.append(top5_mujeres)
+
+        # Concatenar datos
+        top5_df_hombres = pd.concat(top5_data_hombres, ignore_index=True)
+        top5_df_mujeres = pd.concat(top5_data_mujeres, ignore_index=True)
+
+        # Mapear los nombres de los grupos de edad
+        top5_df_hombres['Grupo Edad'] = top5_df_hombres['Grupo Edad'].map(dict(zip(grupos_edad, edades)))
+        top5_df_mujeres['Grupo Edad'] = top5_df_mujeres['Grupo Edad'].map(dict(zip(grupos_edad, edades)))
+
+        # Definir paletas de colores personalizados (azules para hombres y naranjas para mujeres)
+        colores_hombres = ['#135490', '#1769B5', '#2688E3', '#8FCFFF', '#CDE7FF', '#6BA8CC', '#4E9AC5', '#3D85B1']
+        colores_mujeres = ['#DD6700', '#EA7E1F', '#FFB26F', '#FFCBA6', '#FFE5D1', '#FFD69C', '#FFB473', '#FF9E4C']
+
+        # Crear figura y ejes
+        fig, axes = plt.subplots(nrows=2, ncols=1, figsize=figsize, sharex=True)
+
+        # Gráfico para hombres
+        sns.barplot(ax=axes[0], x='Grupo Edad', y='Porcentaje', hue='Especialidad', data=top5_df_hombres,
+                    palette=colores_hombres)
+        axes[0].set_title(f'Top 5 Especialidades por Grupo de Edad para Hombres en {year}')
+        axes[0].set_xlabel('Grupo de Edad')
+        axes[0].set_ylabel('Porcentaje')
+        axes[0].legend(title='Especialidad', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=size_legend)
+
+        # Anotaciones sobre las barras para hombres
+        for p in axes[0].patches:
+            if p.get_height() != 0:  # Verificar si el valor no es 0.0
+                axes[0].annotate(format(p.get_height(), '.1f'),
+                                (p.get_x() + p.get_width() / 2., p.get_height()),
+                                ha='center', va='center',
+                                xytext=(0, 10),
+                                textcoords='offset points', fontsize=size_graph)
+
+        # Gráfico para mujeres
+        sns.barplot(ax=axes[1], x='Grupo Edad', y='Porcentaje', hue='Especialidad', data=top5_df_mujeres,
+                    palette=colores_mujeres)
+        axes[1].set_title(f'Top 5 Especialidades por Grupo de Edad para Mujeres en {year}')
+        axes[1].set_xlabel('Grupo de Edad')
+        axes[1].set_ylabel('Porcentaje')
+        axes[1].legend(title='Especialidad', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=size_legend)
+
+        # Añadir valores numéricos sobre las barras para mujeres
+        for p in axes[1].patches:
+            if p.get_height() != 0:
+                axes[1].annotate(format(p.get_height(), '.1f'),
+                                (p.get_x() + p.get_width() / 2., p.get_height()),
+                                ha='center', va='center',
+                                xytext=(0, 10),
+                                textcoords='offset points', fontsize=size_graph)
+
+        fig.suptitle(title, fontsize=size_title)
+        plt.tight_layout(rect=[0, 0, 1, 1])
+        # Agregar referencia en la parte inferior del gráfico
+        fig.text(0.5, 0.01, footer, ha='center', va='center', fontsize=size_footer, color='black')
+
+        # Convertir la gráfica a base64
+        tmp_file = io.BytesIO()
+        plt.savefig(tmp_file, format='png')
+        tmp_file.seek(0)
+        plot_base64 = base64.b64encode(tmp_file.getvalue()).decode('utf-8')
+        plt.close(fig)
+
+        # Agregar la gráfica como componente HTML a la lista
+        graphs.append(html.Div([
+            html.H2(f'Top 5 Especialidades por Grupo de Edad para Hombres y Mujeres en {year}'),
+            html.Img(src='data:image/png;base64,{}'.format(plot_base64), style={'width': '100%'})
+        ]))
+    
+    # Retornar todos los gráficos como una lista de componentes HTML
+    return graphs
 
 # Define el layout de la aplicación
 app.layout = html.Div([
@@ -1141,6 +1620,95 @@ calculo_layout_embarazo = html.Div([
     html.Div(id='output-data-embarazo')
 ])
 
+calculo_layout_consultas = html.Div([ 
+    html.H1("Gráficos de Tendencia"),
+    html.Div([
+        html.Span('Factor'),
+        dcc.Input(id='input-factor', type='number', value=10000, style={'width': '80px'})
+    ]),
+    html.Label('Grafica a mostrar:'),
+    dcc.Dropdown(
+        id='dropdown-graphic-type',
+        options=[
+            {'label': 'Porcentaje Comparacion Juntos Primer Nivel', 'value': 'pn1_1'},
+            {'label': 'Porcentaje Comparacion Separado Primer Nivel', 'value': 'pn1_2'},
+            {'label': 'Porcentaje Comparacion Entre Primer Nivel', 'value': 'pn1_3'},
+            {'label': 'Por Edad Consultas Primer Nivel', 'value': 'pn1_4'},
+            {'label': 'Por Especialidad Segundo Nivel', 'value': 'pn2_1'},
+            {'label': 'Por Edad Consultas Segundo Nivel', 'value': 'pn2_2'},
+        ],
+        value='pn1_1'  # Valor inicial seleccionado
+    ),
+    html.Label('Seleccionar dataframes para graficar:'),
+    dcc.Dropdown(
+        id='dropdown-dataframes',
+        options=opciones_dataframes,
+        multi=True,
+        value=['Santa Cruz', 'Cordillera', 'Camiri']  # Valores iniciales seleccionados
+    ),
+    html.Div([
+        html.Label('Título del gráfico: '),
+        dcc.Input(
+            id='input-titulo',
+            type='text',
+            value='Comparación a nivel departamental, provincial y municipal casos de X'
+        ),
+        html.Label("Tamaño de letra titulo: "),
+        dcc.Input(
+            id='input-tamaño-titulo',
+            type='number',
+            value='12'
+        )
+    ]),
+    
+    html.Div([
+        html.Label('Pie de Pagina: '),
+        dcc.Input(
+            id='input-pie',
+            type='text',
+            value='Datos obtenidos de la página del SNIS'
+        ),
+        html.Label("Tamaño de letra pie: "),
+        dcc.Input(
+            id='input-tamaño-pie',
+            type='number',
+            value='10'
+        )
+    ]),
+    
+    html.Label('Ubicación de la leyenda:'),
+    dcc.Dropdown(
+        id='dropdown-legend-loc',
+        options=[
+            {'label': 'Arriba a la izquierda', 'value': 'upper left'},
+            {'label': 'Arriba a la derecha', 'value': 'upper right'},
+            {'label': 'Abajo a la izquierda', 'value': 'lower left'},
+            {'label': 'Abajo a la derecha', 'value': 'lower right'}
+        ],
+        value='upper left'  # Valor inicial seleccionado
+    ),
+    
+    html.Div([
+        html.Label('Tamaño de letra leyenda: '),
+        dcc.Input(
+            id='input-tamaño-leyenda',
+            type='number',
+            value='8',
+            style={'width': '80px'}
+        ),
+        html.Label("Tamaño de letra de Numeros Graficas: "),
+        dcc.Input(
+            id='input-tamaño-num-grafica',
+            type='number',
+            value='10',
+            style={'width': '80px'}
+        )
+    ]),
+    
+    html.Button('Generar Gráfico', id='btn-calcular-consultas'),
+    html.Div(id='output-data-consultas')
+])
+
 app.title = "Generate Graph Municipality"
 
 # Callback para actualizar el contenido según la URL
@@ -1246,6 +1814,26 @@ def display_page(pathname):
             html.H2('Datos Gutierrez'),
             create_table(df_g_embarazo),
             calculo_layout_embarazo
+        ])
+    elif pathname == '/consultas':
+        df_c_consulta, df_g_consulta, d1, d2, df_c_consulta_2 = get_casos_consulta()
+
+        df_c_consulta_t1 = calculate_table_total_percent(df_c_consulta)
+        df_c_consulta_t2 = calculate_table_total_percent_age(df_c_consulta)
+        df_g_consulta_t1 = calculate_table_total_percent(df_g_consulta)
+        df_g_consulta_t2 = calculate_table_total_percent_age(df_g_consulta)
+
+        return html.Div([
+            html.H1('Recolección de datos - Análisis de Datos Embarazo Adolescente'),
+            html.H2('Datos Camiri'),
+            create_table(df_c_consulta_t1),
+            html.P("-----"),
+            create_table(df_c_consulta_t2),
+            html.H2('Datos Gutierrez'),
+            create_table(df_g_consulta_t1),
+            html.P("-----"),
+            create_table(df_g_consulta_t2),
+            calculo_layout_consultas
         ])
     else:
         return html.Div([
@@ -1733,6 +2321,100 @@ def update_output(n_clicks, type_age, type_mounth, type_percent, selected_datafr
 
             
             return html.Div("")       
+        except Exception as e:
+            return html.Div(f'Error: {e}')
+
+# Callback para realizar el cálculo de incidencias y porcentajes
+@app.callback(
+    Output('output-data-consultas', 'children'),
+    [
+        Input('btn-calcular-consultas', 'n_clicks'),
+        Input('dropdown-graphic-type', 'value'),
+        Input('dropdown-dataframes', 'value'),
+        Input('input-titulo', 'value'),
+        Input('input-tamaño-titulo', 'value'),
+        Input('input-pie', 'value'),
+        Input('input-tamaño-pie', 'value'),
+        Input('input-tamaño-leyenda', 'value'),
+        Input('input-tamaño-num-grafica', 'value'),
+        Input('dropdown-legend-loc', 'value')
+    ],
+    [State('input-factor', 'value'),
+     State('url', 'pathname')]  # Capturar el pathname actual
+)
+def update_output(n_clicks, graphic_type, selected_dataframes, titulo, tamanio_titulo, 
+                  pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 
+                  factor, pathname):
+    if n_clicks:
+        try:
+            if tamanio_titulo != None:
+                tamanio_titulo = int(tamanio_titulo)
+            else:
+                tamanio_titulo = 16
+            if tamanio_pie != None:
+                tamanio_pie = int(tamanio_pie)
+            else:
+                tamanio_pie = 10
+            if tamanio_leyenda != None:
+                tamanio_leyenda = int(tamanio_leyenda)
+            else:
+                tamanio_leyenda = 8
+            if tamanio_num_grafica != None:
+                tamanio_num_grafica = int(tamanio_num_grafica)
+            else:
+                tamanio_num_grafica = 10
+            
+            if pathname == '/consultas':
+             # Determinar qué conjuntos de datos utilizar según la ruta actual (pathname)
+                df_c_consulta, df_g_consulta, df_pc_consulta, df_sc_consulta, df_c_consulta_2 = get_casos_consulta()
+
+                df_c = calculate_total_consultas(df_c_consulta)
+                df_g = calculate_total_consultas(df_g_consulta)
+                df_pc = calculate_total_consultas(df_pc_consulta)
+                df_sc = calculate_total_consultas(df_sc_consulta)
+
+                df_c_2 = calculate_percent_second(df_c_consulta_2)
+                df_c_2_t = calculate_percent_second_age(df_c_consulta_2)
+
+                if n_clicks > 0:
+                    # Seleccionar los dataframes según la selección del usuario
+                    df_c.sort_values(by='Año', inplace=True)
+                    df_g.sort_values(by='Año', inplace=True)
+                    df_pc.sort_values(by='Año', inplace=True)
+                    df_sc.sort_values(by='Año', inplace=True)
+                    
+                    dataframes = {
+                        'Santa Cruz': df_sc,
+                        'Cordillera': df_pc,
+                        'Camiri': df_c,
+                        'Gutierrez': df_g
+                    }
+                    
+                    if (len(selected_dataframes) == 3):
+                        if graphic_type == 'pn1_1':
+                            # Generar y retornar el gráfico con los parámetros seleccionados
+                            return generate_bars_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', 'Porcentaje', titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        elif graphic_type == 'pn1_2':
+                            return generate_bars_separate_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', 'Porcentaje', titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        elif graphic_type == 'pn1_3':
+                            return generate_bars_comparison_gender(dataframes[selected_dataframes[0]], dataframes[selected_dataframes[1]], dataframes[selected_dataframes[2]], 'Año', 'Porcentaje', titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, selected_dataframes, legend_loc)
+                        else:
+                            return html.Div("") 
+                    elif (len(selected_dataframes) == 1):
+                        if graphic_type == 'pn1_4':
+                            return plot_age_percentages(dataframes[selected_dataframes[0]], 0, 0, 'Año', 'Porcentaje', titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, legend_loc, 0.2)
+                        elif graphic_type == 'pn2_1':
+                            return plot_top_services_by_year_and_gender(df_c_2, titulo, tamanio_titulo, pie, tamanio_pie, tamanio_num_grafica)
+                        elif graphic_type == 'pn2_2':
+                            return plot_top5_especialidades(df_c_2_t, [2021, 2022, 2023], titulo, tamanio_titulo, pie, tamanio_pie, tamanio_leyenda, tamanio_num_grafica, (12,9))
+                        else:
+                            return html.Div("")
+                    else:
+                        # Si falta algún dataframe seleccionado, retornar un mensaje de error o un div vacío
+                        return html.Div("")
+            
+            return html.Div("")
+              
         except Exception as e:
             return html.Div(f'Error: {e}')
 
